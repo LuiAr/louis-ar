@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \" import sys, json for line in sys.stdin: try: obj = json.loads\\(line\\) if obj.get\\('type'\\) == 'assistant' or \\(obj.get\\('message', {}\\).get\\('role'\\) == 'assistant'\\): content = obj.get\\('message', {}\\).get\\('content', ''\\) if isinstance\\(content, list\\): for c in content: if isinstance\\(c, dict\\) and c.get\\('type'\\) == 'text': print\\(c['text'][:2000]\\) print\\('---'\\) elif isinstance\\(content, str\\): print\\(content[:2000]\\) print\\('---'\\) except: pass \")",
+      "Bash(python3 -c \" import sys, json for line in sys.stdin: try: obj = json.loads\\(line\\) msg = obj.get\\('message', {}\\) if isinstance\\(msg, dict\\) and msg.get\\('role'\\) == 'assistant': content = msg.get\\('content', ''\\) if isinstance\\(content, list\\): for c in content: if isinstance\\(c, dict\\) and c.get\\('type'\\) == 'text': print\\(c['text'][:3000]\\) print\\('---'\\) elif isinstance\\(content, str\\) and content: print\\(content[:3000]\\) print\\('---'\\) except: pass \")",
+      "Bash(python3 -c \" import sys, json for line in sys.stdin: try: obj = json.loads\\(line\\) msg = obj.get\\('message', {}\\) if isinstance\\(msg, dict\\): role = msg.get\\('role', ''\\) content = msg.get\\('content', ''\\) if role in \\('user', 'assistant'\\): if isinstance\\(content, list\\): for c in content: if isinstance\\(c, dict\\) and c.get\\('type'\\) == 'text': print\\(f'[{role}]:', c['text'][:2000]\\) print\\('---'\\) elif isinstance\\(content, str\\) and content: print\\(f'[{role}]:', content[:2000]\\) print\\('---'\\) except: pass \")",
+      "Bash(python3 -c \" import sys, json for line in sys.stdin: try: obj = json.loads\\(line\\) msg = obj.get\\('message', {}\\) if isinstance\\(msg, dict\\): role = msg.get\\('role', ''\\) content = msg.get\\('content', ''\\) if role in \\('user', 'assistant'\\): if isinstance\\(content, list\\): for c in content: if isinstance\\(c, dict\\) and c.get\\('type'\\) == 'text': print\\(f'[{role}]:', c['text'][:3000]\\) print\\('---'\\) elif isinstance\\(content, str\\) and content: print\\(f'[{role}]:', content[:3000]\\) print\\('---'\\) except: pass \")",
+      "Bash(npm --version)",
+      "Bash(/usr/local/bin/node --version)",
+      "Bash(nvm use:*)",
+      "Bash(brew list:*)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//opt/homebrew/Cellar/node/25.2.1/bin/**)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(/opt/homebrew/bin/node --version)",
+      "Bash(/opt/homebrew/bin/npm --version)",
+      "Read(//opt/homebrew/Cellar/node/**)",
+      "Read(//opt/homebrew/Cellar/node/18.15.0/**)",
+      "Read(//Users/louisar/.nvm/versions/**)",
+      "Read(//usr/local/Cellar/**)",
+      "Read(//opt/homebrew/**)",
+      "Read(//usr/local/**)",
+      "Bash(/usr/local/bin/npm --version)"
+    ]
+  }
+}
