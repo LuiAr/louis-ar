@@ -2,9 +2,10 @@ import MacWindow from "@/components/ui/MacWindow";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 
 const SKILLS = [
-  "TypeScript", "React", "Next.js", "Node.js",
-  "Tailwind CSS", "PostgreSQL", "Docker", "AWS",
-  "Figma", "Git", "GraphQL", "Prisma",
+  "Python", "SQL", "Java",
+  "Azure", "Spark", "Kafka", "Deepset",
+  "MongoDB", "Cassandra", "Neo4j", "ElasticSearch",
+  "Power BI", "Qlik Sense", "scikit-learn",
 ];
 
 function PixelAvatar() {
@@ -57,14 +58,15 @@ export default function AboutSection() {
                     About
                   </p>
                   <p className="text-[13px] leading-relaxed">
-                    I&apos;m a software engineer with 5+ years of experience building
-                    products people love. I care deeply about crafting interfaces
-                    that are fast, accessible, and a joy to use.
+                    I&apos;m a Data Scientist based in Stockholm, working on AI solutions
+                    for government institutions at Redfield AB. I hold an Engineering
+                    Degree from Efrei Paris (Data Engineering) and a Master&apos;s from
+                    Stockholm University specialising in AI applied to Health.
                   </p>
                   <p className="text-[13px] leading-relaxed mt-3">
-                    When I&apos;m not shipping features, you&apos;ll find me contributing
-                    to open source, exploring retro computing aesthetics, or
-                    attempting to make the perfect espresso.
+                    Currently writing my Master&apos;s thesis with RISE &amp; Husqvarna on
+                    6G on-device AI for autonomous robots. Outside of work I run
+                    half-marathons, ski, and play football.
                   </p>
                 </div>
 

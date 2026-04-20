@@ -38,7 +38,7 @@ export default function ContactSection() {
               {/* Buttons */}
               <div className="flex flex-col gap-2">
                 <a
-                  href="mailto:hello@example.com"
+                  href="mailto:louis.arbey@redfield.se"
                   className="mac-button mac-button-default w-full justify-center text-center"
                 >
                   Send Email
@@ -53,7 +53,7 @@ export default function ContactSection() {
                     GitHub ↗
                   </a>
                   <a
-                    href="https://linkedin.com"
+                    href="https://www.linkedin.com/in/louis-arbey"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mac-button flex-1 justify-center"
