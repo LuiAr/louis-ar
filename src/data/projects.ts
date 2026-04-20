@@ -7,7 +7,7 @@ export const projects: Project[] = [
     shortDescription: "Master thesis — VLM/SLM system for autonomous navigation",
     longDescription:
       "Master thesis in collaboration with RISE Research Institutes of Sweden and Husqvarna. Developed a modular Vision-Language Model / Small Language Model system optimised for 6G on-device AI enabling real-time navigation of autonomous robots. Included data collection on a Husqvarna Automower.",
-    tags: ["ai", "research"],
+    tags: ["ai"],
     status: "in-progress",
     year: 2026,
     iconType: "document",
@@ -21,7 +21,7 @@ export const projects: Project[] = [
     shortDescription: "Computer vision model for catering tray detection",
     longDescription:
       "Academic project at Efrei Paris — developed a self-checkout solution for the catering industry using computer vision to detect trays. The project was selected among the six best out of 40 submissions.",
-    tags: ["ai", "research"],
+    tags: ["ai"],
     status: "live",
     year: 2023,
     iconType: "application",
