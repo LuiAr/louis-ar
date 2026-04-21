@@ -14,7 +14,7 @@ export default function AboutSection() {
       <div className="flex-shrink-0 flex flex-col items-center gap-3">
         <div className="border-2 border-[var(--color-ink)] shadow-[2px_2px_0_var(--color-ink)] overflow-hidden w-[120px] h-[120px]">
           <Image
-            src="/profile.jpg"
+            src="/louis-ar/profile.jpg"
             alt="Louis"
             width={120}
             height={120}
