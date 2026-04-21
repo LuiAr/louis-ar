@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-const NAV_ITEMS = [
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Experience", href: "#experience" },
-  { label: "Contact", href: "#contact" },
-];
+const MENUS = ["File", "Edit", "View", "Window", "Help"];
 
-export default function MenuBar() {
+interface MenuBarProps {
+  activeTitle?: string;
+}
+
+export default function MenuBar({ activeTitle = "Portfolio" }: MenuBarProps) {
   const [time, setTime] = useState("");
 
   useEffect(() => {
@@ -30,30 +29,34 @@ export default function MenuBar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center h-[22px] bg-[var(--color-cream)] border-b-2 border-[var(--color-ink)]"
+      className="flex-shrink-0 flex items-center h-[22px] bg-[var(--color-cream)] border-b-2 border-[var(--color-ink)]"
       style={{ fontFamily: "var(--font-body)" }}
     >
       {/* Apple logo */}
-      <div className="mac-invert-hover px-3 h-full flex items-center text-[13px] font-bold border-r border-[var(--color-ink)]">
+      <div className="mac-invert-hover px-3 h-full flex items-center text-[13px] font-bold border-r border-[var(--color-ink)] select-none">
 
       </div>
 
-      {/* Nav items */}
-      {NAV_ITEMS.map((item) => (
-        <a
-          key={item.href}
-          href={item.href}
-          className="mac-invert-hover px-3 h-full flex items-center text-[11px] border-r border-[var(--color-ink)] no-underline"
+      {/* Active app name */}
+      <div className="px-3 h-full flex items-center text-[11px] font-bold border-r border-[var(--color-ink)] select-none">
+        {activeTitle}
+      </div>
+
+      {/* Menu items */}
+      {MENUS.map((item) => (
+        <div
+          key={item}
+          className="mac-invert-hover px-3 h-full flex items-center text-[11px] border-r border-[var(--color-ink)] cursor-default select-none"
         >
-          {item.label}
-        </a>
+          {item}
+        </div>
       ))}
 
       {/* Spacer */}
       <div className="flex-1" />
 
       {/* Clock */}
-      <div className="px-3 h-full flex items-center text-[11px] border-l border-[var(--color-ink)]">
+      <div className="px-3 h-full flex items-center text-[11px] border-l border-[var(--color-ink)] select-none tabular-nums">
         {time}
       </div>
     </nav>

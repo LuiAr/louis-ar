@@ -24,8 +24,10 @@
     padding: 0;
   }
 
-  html {
-    scroll-behavior: smooth;
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
   }
 
   body {
@@ -148,6 +150,27 @@
 
   .mac-list-row-active {
     background-color: var(--color-cream-dark);
+  }
+
+  /* Classic Mac OS desktop background — medium gray with fine crosshatch */
+  .mac-desktop-bg {
+    background-color: #aaaaaa;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 1px,
+        rgba(255, 255, 255, 0.18) 1px,
+        rgba(255, 255, 255, 0.18) 2px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 1px,
+        rgba(255, 255, 255, 0.18) 1px,
+        rgba(255, 255, 255, 0.18) 2px
+      );
+    background-size: 4px 4px;
   }
 
   .mac-list-header {

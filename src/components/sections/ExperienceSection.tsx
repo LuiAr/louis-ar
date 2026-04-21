@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import MacWindow from "@/components/ui/MacWindow";
-import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { experience } from "@/data/experience";
 import type { ExperienceEntry } from "@/types";
 
@@ -84,27 +82,17 @@ function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
 
 export default function ExperienceSection() {
   return (
-    <section id="experience" className="py-20 px-4">
-      <div className="max-w-3xl mx-auto">
-        <FadeInWhenVisible>
-          <MacWindow title="Experience — List View" active className="w-full">
-            <div>
-              {/* Header row */}
-              <div className="mac-list-header">
-                <span className="w-4" />
-                <span className="flex-1">Company</span>
-                <span className="hidden sm:block w-40">Role</span>
-                <span className="hidden md:block w-32 text-right">Period</span>
-                <span className="hidden lg:block w-20 text-right">Type</span>
-              </div>
-
-              {experience.map((entry) => (
-                <ExperienceRow key={entry.id} entry={entry} />
-              ))}
-            </div>
-          </MacWindow>
-        </FadeInWhenVisible>
+    <div>
+      <div className="mac-list-header">
+        <span className="w-4" />
+        <span className="flex-1">Company</span>
+        <span className="hidden sm:block w-40">Role</span>
+        <span className="hidden md:block w-32 text-right">Period</span>
+        <span className="hidden lg:block w-20 text-right">Type</span>
       </div>
-    </section>
+      {experience.map((entry) => (
+        <ExperienceRow key={entry.id} entry={entry} />
+      ))}
+    </div>
   );
 }

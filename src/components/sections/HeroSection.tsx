@@ -3,13 +3,11 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useBootSequence } from "@/hooks/useBootSequence";
 import { useTypewriter } from "@/hooks/useTypewriter";
-import MacWindow from "@/components/ui/MacWindow";
 
 const ROLES = [
-  "Frontend Engineer",
-  "Full-Stack Developer",
-  "UI/UX Enthusiast",
-  "Open Source Contributor",
+  "Data Scientist",
+  "Data Engineer",
+  "Innovation Enthusiast",
 ];
 
 function HappyMacSVG() {
@@ -43,12 +41,13 @@ export default function HeroSection() {
   const role = useTypewriter({ words: ROLES });
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center">
+    <>
+      {/* Full-screen boot overlay — above all windows */}
       <AnimatePresence>
         {stage === "booting" && (
           <motion.div
             key="boot"
-            className="fixed inset-0 z-40 bg-[var(--color-ink)] flex flex-col items-center justify-center gap-8"
+            className="fixed inset-0 z-[100] bg-[var(--color-ink)] flex flex-col items-center justify-center gap-8"
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
@@ -71,45 +70,26 @@ export default function HeroSection() {
         )}
       </AnimatePresence>
 
+      {/* Hello content — shown after boot */}
       {stage === "done" && (
-        <div className="w-full max-w-2xl mx-auto px-4 pt-8">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.0, 0.0, 0.2, 1] }}
-          >
-            <MacWindow title="Hello.txt" active className="w-full">
-              <div className="p-8 space-y-4">
-                <p className="text-[var(--color-ink-muted)] text-[11px] uppercase tracking-widest">
-                  Welcome to my portfolio
-                </p>
-                <h1 className="text-4xl font-bold leading-tight">
-                  Hello, I&apos;m Louis
-                </h1>
-                <div className="flex items-center gap-2 text-xl h-8">
-                  <span className="text-[var(--color-ink-muted)]">I&apos;m a</span>
-                  <span className="font-bold cursor-blink">{role}</span>
-                </div>
-                <p className="text-[13px] text-[var(--color-ink-muted)] max-w-lg">
-                  I build fast, accessible, and beautifully crafted web experiences.
-                  Passionate about design systems, developer tooling, and clean code.
-                </p>
-                <div className="flex gap-3 pt-2">
-                  <a
-                    href="#projects"
-                    className="mac-button mac-button-default"
-                  >
-                    View Projects
-                  </a>
-                  <a href="#contact" className="mac-button">
-                    Get in touch
-                  </a>
-                </div>
-              </div>
-            </MacWindow>
-          </motion.div>
+        <div className="p-8 space-y-4">
+          <p className="text-[var(--color-ink-muted)] text-[11px] uppercase tracking-widest">
+            Welcome to my portfolio
+          </p>
+          <h1 className="text-4xl font-bold leading-tight">
+            Hello, I&apos;m Louis
+          </h1>
+          <div className="flex items-center gap-2 text-xl h-8">
+            <span className="text-[var(--color-ink-muted)]">I&apos;m a</span>
+            <span className="font-bold cursor-blink">{role}</span>
+          </div>
+          <p className="text-[13px] text-[var(--color-ink-muted)] max-w-lg">
+            Building AI solutions and data pipelines that turn messy real-world
+            data into clear insights. Currently finishing a Master&apos;s thesis
+            on 6G on-device AI for autonomous robots at RISE &amp; Husqvarna.
+          </p>
         </div>
       )}
-    </section>
+    </>
   );
 }

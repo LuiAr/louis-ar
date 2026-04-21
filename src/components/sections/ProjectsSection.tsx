@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import MacWindow from "@/components/ui/MacWindow";
 import TiltCard from "@/components/animations/TiltCard";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
-import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { projects } from "@/data/projects";
 import type { Project } from "@/types";
 
@@ -59,15 +58,80 @@ function StatusBadge({ status }: { status: Project["status"] }) {
   );
 }
 
+function ProjectTooltip({ project, anchorRect }: { project: Project; anchorRect: DOMRect }) {
+  const style: React.CSSProperties = {
+    position: "fixed",
+    left: anchorRect.left + anchorRect.width / 2,
+    top: anchorRect.top - 8,
+    transform: "translate(-50%, -100%)",
+    width: "224px",
+    zIndex: 9999,
+    pointerEvents: "none",
+  };
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ duration: 0.15 }}
+      style={style}
+      className="mac-window"
+    >
+      <div className="p-3 space-y-1">
+        <p className="font-bold text-[12px]">{project.title}</p>
+        <p className="text-[11px] text-[var(--color-ink-muted)]">
+          {project.shortDescription}
+        </p>
+        <div className="flex flex-wrap gap-1 pt-1">
+          {project.techStack.slice(0, 3).map((t) => (
+            <span key={t} className="text-[10px] border border-[var(--color-ink)] px-1">
+              {t}
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2 pt-1">
+          {project.links.github && (
+            <span className="text-[10px] underline">GitHub ↗</span>
+          )}
+          {project.links.live && (
+            <span className="text-[10px] underline">Live ↗</span>
+          )}
+        </div>
+      </div>
+    </motion.div>,
+    document.body
+  );
+}
+
 function ProjectCard({ project }: { project: Project }) {
-  const [hovered, setHovered] = useState(false);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  function handleMouseEnter() {
+    if (cardRef.current) setAnchorRect(cardRef.current.getBoundingClientRect());
+  }
+
+  function handleMouseLeave() {
+    setAnchorRect(null);
+  }
+
+  useEffect(() => {
+    if (!anchorRect) return;
+    function update() {
+      if (cardRef.current) setAnchorRect(cardRef.current.getBoundingClientRect());
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, [anchorRect]);
 
   return (
     <TiltCard className="relative">
       <div
-        className="flex flex-col items-center gap-2 p-4 cursor-pointer mac-invert-hover border border-transparent hover:border-[var(--color-ink)] group"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        ref={cardRef}
+        className="flex flex-col items-center gap-2 p-4 cursor-pointer mac-invert-hover border border-transparent hover:border-[var(--color-ink)]"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <ProjectIcon type={project.iconType} />
         <span className="text-[11px] text-center font-bold leading-tight max-w-[120px]">
@@ -77,37 +141,7 @@ function ProjectCard({ project }: { project: Project }) {
       </div>
 
       <AnimatePresence>
-        {hovered && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 mac-window z-20 pointer-events-none"
-          >
-            <div className="p-3 space-y-1">
-              <p className="font-bold text-[12px]">{project.title}</p>
-              <p className="text-[11px] text-[var(--color-ink-muted)]">
-                {project.shortDescription}
-              </p>
-              <div className="flex flex-wrap gap-1 pt-1">
-                {project.techStack.slice(0, 3).map((t) => (
-                  <span key={t} className="text-[10px] border border-[var(--color-ink)] px-1">
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-2 pt-1">
-                {project.links.github && (
-                  <span className="text-[10px] underline">GitHub ↗</span>
-                )}
-                {project.links.live && (
-                  <span className="text-[10px] underline">Live ↗</span>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {anchorRect && <ProjectTooltip project={project} anchorRect={anchorRect} />}
       </AnimatePresence>
     </TiltCard>
   );
@@ -115,25 +149,20 @@ function ProjectCard({ project }: { project: Project }) {
 
 export default function ProjectsSection() {
   return (
-    <section id="projects" className="py-20 px-4">
-      <div className="max-w-3xl mx-auto">
-        <FadeInWhenVisible>
-          <MacWindow title="Projects — Finder" active showScrollTrack className="w-full">
-            <div className="p-4">
-              <p className="text-[11px] text-[var(--color-ink-muted)] mb-4 px-2">
-                {projects.length} items
-              </p>
-              <StaggerChildren className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))" }}>
-                {projects.map((project) => (
-                  <StaggerItem key={project.id}>
-                    <ProjectCard project={project} />
-                  </StaggerItem>
-                ))}
-              </StaggerChildren>
-            </div>
-          </MacWindow>
-        </FadeInWhenVisible>
-      </div>
-    </section>
+    <div className="p-4">
+      <p className="text-[11px] text-[var(--color-ink-muted)] mb-4 px-2">
+        {projects.length} items
+      </p>
+      <StaggerChildren
+        className="grid gap-2"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))" }}
+      >
+        {projects.map((project) => (
+          <StaggerItem key={project.id}>
+            <ProjectCard project={project} />
+          </StaggerItem>
+        ))}
+      </StaggerChildren>
+    </div>
   );
 }
