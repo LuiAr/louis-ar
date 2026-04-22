@@ -10,7 +10,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Louis — Portfolio",
+  title: "Louis Ar",
   description: "Personal portfolio showcasing projects and experience",
 };
 
