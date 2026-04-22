@@ -8,15 +8,11 @@ export type MenuAction =
   | "quit"
   | "close"
   | "minimize"
-  | "open-hello"
-  | "open-about"
-  | "open-projects"
-  | "open-experience"
-  | "open-contact"
   | "github"
-  | "linkedin";
+  | "linkedin"
+  | `open-${string}`;
 
-interface MenuItem {
+export interface MenuItem {
   label?: string;
   action?: MenuAction;
   shortcut?: string;
@@ -30,70 +26,44 @@ const APPLE_ITEMS: MenuItem[] = [
   { label: "Quit", action: "quit", shortcut: "⌘Q" },
 ];
 
-const MENUS: { id: string; label: string; items: MenuItem[] }[] = [
-  {
-    id: "File",
-    label: "File",
-    items: [
-      { label: "Close Window", action: "close", shortcut: "⌘W" },
-      { separator: true },
-      { label: "Get Info", disabled: true, shortcut: "⌘I" },
-    ],
-  },
-  {
-    id: "Edit",
-    label: "Edit",
-    items: [
-      { label: "Undo", disabled: true, shortcut: "⌘Z" },
-      { separator: true },
-      { label: "Cut", disabled: true, shortcut: "⌘X" },
-      { label: "Copy", disabled: true, shortcut: "⌘C" },
-      { label: "Paste", disabled: true, shortcut: "⌘V" },
-      { label: "Select All", disabled: true, shortcut: "⌘A" },
-    ],
-  },
-  {
-    id: "View",
-    label: "View",
-    items: [
-      { label: "Hello.txt", action: "open-hello" },
-      { label: "ReadMe.txt", action: "open-about" },
-      { label: "Projects", action: "open-projects" },
-      { label: "Experience", action: "open-experience" },
-      { label: "Contact", action: "open-contact" },
-    ],
-  },
-  {
-    id: "Window",
-    label: "Window",
-    items: [
-      { label: "Minimize", action: "minimize", shortcut: "⌘M" },
-      { separator: true },
-      { label: "Hello.txt", action: "open-hello" },
-      { label: "ReadMe.txt", action: "open-about" },
-      { label: "Projects", action: "open-projects" },
-      { label: "Experience", action: "open-experience" },
-      { label: "Contact", action: "open-contact" },
-    ],
-  },
-  {
-    id: "Help",
-    label: "Help",
-    items: [
-      { label: "About This Portfolio", action: "about-portfolio" },
-      { separator: true },
-      { label: "GitHub ↗", action: "github" },
-      { label: "LinkedIn ↗", action: "linkedin" },
-    ],
-  },
+const FILE_ITEMS: MenuItem[] = [
+  { label: "Close Window", action: "close", shortcut: "⌘W" },
+  { separator: true },
+  { label: "Get Info", disabled: true, shortcut: "⌘I" },
 ];
 
-// All menu IDs in display order — used for left/right keyboard navigation
-const ALL_MENU_IDS = ["apple", ...MENUS.map((m) => m.id)];
+const EDIT_ITEMS: MenuItem[] = [
+  { label: "Undo", disabled: true, shortcut: "⌘Z" },
+  { separator: true },
+  { label: "Cut", disabled: true, shortcut: "⌘X" },
+  { label: "Copy", disabled: true, shortcut: "⌘C" },
+  { label: "Paste", disabled: true, shortcut: "⌘V" },
+  { label: "Select All", disabled: true, shortcut: "⌘A" },
+];
 
-function getItemsForMenu(menuId: string): MenuItem[] {
-  if (menuId === "apple") return APPLE_ITEMS;
-  return MENUS.find((m) => m.id === menuId)?.items ?? [];
+const HELP_ITEMS: MenuItem[] = [
+  { label: "About This Portfolio", action: "about-portfolio" },
+  { separator: true },
+  { label: "GitHub ↗", action: "github" },
+  { label: "LinkedIn ↗", action: "linkedin" },
+];
+
+function buildMenus(windowItems: MenuItem[]) {
+  return [
+    { id: "File", label: "File", items: FILE_ITEMS },
+    { id: "Edit", label: "Edit", items: EDIT_ITEMS },
+    { id: "View", label: "View", items: windowItems },
+    {
+      id: "Window",
+      label: "Window",
+      items: [
+        { label: "Minimize", action: "minimize" as MenuAction, shortcut: "⌘M" },
+        { separator: true as const },
+        ...windowItems,
+      ],
+    },
+    { id: "Help", label: "Help", items: HELP_ITEMS },
+  ];
 }
 
 /** Indices of items that can be keyboard-focused (non-separator, non-disabled) */
@@ -113,6 +83,8 @@ interface MenuBarProps {
   onAction?: (action: MenuAction) => void;
   checkedActions?: Set<MenuAction>;
   disabledActions?: Set<MenuAction>;
+  /** Window items for the View and Window menus — built by the parent from the app registry */
+  windowMenuItems?: MenuItem[];
 }
 
 function PearIcon() {
@@ -170,7 +142,7 @@ function DropdownMenu({
                 : "hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)]"
             )}
           >
-            {/* Checkmark column — always reserved so labels align */}
+            {/* Fixed-width checkmark column keeps labels aligned */}
             <span className="w-[14px] flex-shrink-0 text-center">
               {isChecked ? "✓" : ""}
             </span>
@@ -192,11 +164,20 @@ export default function MenuBar({
   onAction,
   checkedActions,
   disabledActions,
+  windowMenuItems = [],
 }: MenuBarProps) {
   const [time, setTime] = useState("");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const menuBarRef = useRef<HTMLElement>(null);
+
+  const MENUS = buildMenus(windowMenuItems);
+  const ALL_MENU_IDS = ["apple", ...MENUS.map((m) => m.id)];
+
+  function getItemsForMenu(menuId: string): MenuItem[] {
+    if (menuId === "apple") return APPLE_ITEMS;
+    return MENUS.find((m) => m.id === menuId)?.items ?? [];
+  }
 
   useEffect(() => {
     const update = () => {
@@ -260,9 +241,7 @@ export default function MenuBar({
         case "ArrowUp": {
           e.preventDefault();
           const next =
-            currentNavPos <= 0
-              ? navIndices[0]
-              : navIndices[currentNavPos - 1];
+            currentNavPos <= 0 ? navIndices[0] : navIndices[currentNavPos - 1];
           if (next !== undefined) setFocusedIndex(next);
           break;
         }
@@ -297,8 +276,8 @@ export default function MenuBar({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openMenu, focusedIndex, disabledActions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openMenu, focusedIndex, disabledActions, MENUS]);
 
   function handleAction(action: MenuAction) {
     setOpenMenu(null);

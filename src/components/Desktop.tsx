@@ -4,72 +4,38 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { cn } from "@/lib/cn";
 import DraggableWindow from "@/components/ui/DraggableWindow";
-import MenuBar, { type MenuAction } from "@/components/ui/MenuBar";
-import DynamicHero from "@/components/sections/DynamicHero";
-import AboutSection from "@/components/sections/AboutSection";
-import ProjectsSection from "@/components/sections/ProjectsSection";
-import ExperienceSection from "@/components/sections/ExperienceSection";
-import ContactSection from "@/components/sections/ContactSection";
+import MenuBar, { type MenuAction, type MenuItem } from "@/components/ui/MenuBar";
+import { APPS } from "@/data/apps";
 
-type WindowId = "hello" | "about" | "projects" | "experience" | "contact";
+// ── localStorage persistence ──────────────────────────────────────────────────
 
-interface WindowConfig {
-  id: WindowId;
-  title: string;
-  defaultPosition: { x: number; y: number };
-  defaultWidth: number;
-  defaultHeight: number;
-  initiallyOpen: boolean;
-  dockLabel: string;
+const STORAGE_KEY = "louis-ar-windows";
+
+interface StoredLayout {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
-const WINDOW_CONFIGS: WindowConfig[] = [
-  {
-    id: "hello",
-    title: "Hello.txt",
-    defaultPosition: { x: 40, y: 55 },
-    defaultWidth: 480,
-    defaultHeight: 320,
-    initiallyOpen: true,
-    dockLabel: "Hello.txt",
-  },
-  {
-    id: "about",
-    title: "ReadMe.txt",
-    defaultPosition: { x: 660, y: 82 },
-    defaultWidth: 520,
-    defaultHeight: 420,
-    initiallyOpen: true,
-    dockLabel: "ReadMe.txt",
-  },
-  {
-    id: "projects",
-    title: "Projects — Finder",
-    defaultPosition: { x: 300, y: 60 },
-    defaultWidth: 640,
-    defaultHeight: 460,
-    initiallyOpen: false,
-    dockLabel: "Projects",
-  },
-  {
-    id: "experience",
-    title: "Experience",
-    defaultPosition: { x: 220, y: 100 },
-    defaultWidth: 720,
-    defaultHeight: 400,
-    initiallyOpen: false,
-    dockLabel: "Experience",
-  },
-  {
-    id: "contact",
-    title: "Get In Touch",
-    defaultPosition: { x: 600, y: 120 },
-    defaultWidth: 340,
-    defaultHeight: 400,
-    initiallyOpen: false,
-    dockLabel: "Contact",
-  },
-];
+function loadLayout(): Record<string, StoredLayout> {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveLayout(id: string, data: StoredLayout) {
+  try {
+    const current = loadLayout();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, [id]: data }));
+  } catch {
+    // ignore — storage may be unavailable
+  }
+}
+
+// ── Window state ──────────────────────────────────────────────────────────────
 
 interface WindowState {
   isOpen: boolean;
@@ -77,74 +43,13 @@ interface WindowState {
   zIndex: number;
 }
 
-function buildInitialState(): Record<WindowId, WindowState> {
-  const state = {} as Record<WindowId, WindowState>;
-  WINDOW_CONFIGS.forEach((c, i) => {
-    state[c.id] = {
-      isOpen: c.initiallyOpen,
-      isMinimized: false,
-      zIndex: WINDOW_CONFIGS.length - i,
-    };
-  });
-  return state;
-}
-
-// ── Dock icons ────────────────────────────────────────────────────────────────
-
-function DockIcon({ id }: { id: WindowId }) {
-  switch (id) {
-    case "hello":
-      return (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <rect x="2" y="2" width="24" height="18" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream-dark)" />
-          <rect x="4" y="4" width="20" height="12" fill="currentColor" />
-          <rect x="6" y="6" width="16" height="8" fill="var(--color-cream)" />
-          <rect x="10" y="20" width="8" height="3" fill="currentColor" />
-          <rect x="7" y="23" width="14" height="2" fill="currentColor" />
-        </svg>
-      );
-    case "about":
-      return (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <rect x="5" y="2" width="16" height="22" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
-          <line x1="8" y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="8" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="8" y1="16" x2="14" y2="16" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="8" y1="20" x2="16" y2="20" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1" />
-        </svg>
-      );
-    case "projects":
-      return (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <path
-            d="M2 9 Q2 6 5 6 L11 6 L13 9 L23 9 Q26 9 26 12 L26 23 Q26 26 23 26 L5 26 Q2 26 2 23Z"
-            fill="var(--color-cream-dark)"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <line x1="2" y1="12" x2="26" y2="12" stroke="currentColor" strokeWidth="1" />
-        </svg>
-      );
-    case "experience":
-      return (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <rect x="6" y="4" width="16" height="20" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
-          <line x1="9" y1="10" x2="19" y2="10" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="9" y1="14" x2="19" y2="14" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="9" y1="18" x2="15" y2="18" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="3" y="2" width="16" height="20" stroke="currentColor" strokeWidth="1" fill="var(--color-cream-dark)" />
-          <line x1="6" y1="8" x2="16" y2="8" stroke="currentColor" strokeWidth="1" />
-          <line x1="6" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="1" />
-        </svg>
-      );
-    case "contact":
-      return (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <rect x="2" y="6" width="24" height="16" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
-          <path d="M2 8 L14 16 L26 8" stroke="currentColor" strokeWidth="1.5" fill="none" />
-        </svg>
-      );
-  }
+function buildInitialState(): Record<string, WindowState> {
+  return Object.fromEntries(
+    APPS.map((app, i) => [
+      app.id,
+      { isOpen: app.initiallyOpen, isMinimized: false, zIndex: APPS.length - i },
+    ])
+  );
 }
 
 // ── About modal ───────────────────────────────────────────────────────────────
@@ -178,7 +83,6 @@ function AboutModal({ onClose }: { onClose: () => void }) {
         className="mac-window w-[340px]"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        {/* Title bar */}
         <div className="flex items-center h-[22px] mac-titlebar-stripes border-b-2 border-[var(--color-ink)] relative">
           <div
             className="flex items-center gap-[3px] pl-[6px] z-10"
@@ -197,7 +101,6 @@ function AboutModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-4 bg-[var(--color-window-bg)]">
           <div className="flex justify-center py-2 bg-[var(--color-ink)]">
             <AboutMacSVG />
@@ -221,10 +124,7 @@ function AboutModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="flex justify-center pt-2">
-            <button
-              onClick={onClose}
-              className="mac-button mac-button-default"
-            >
+            <button onClick={onClose} className="mac-button mac-button-default">
               OK
             </button>
           </div>
@@ -238,12 +138,19 @@ function AboutModal({ onClose }: { onClose: () => void }) {
 
 export default function Desktop() {
   const desktopRef = useRef<HTMLDivElement>(null);
-  const [states, setStates] = useState<Record<WindowId, WindowState>>(buildInitialState);
-  const [activeId, setActiveId] = useState<WindowId>("hello");
+  const [states, setStates] = useState<Record<string, WindowState>>(buildInitialState);
+  const [activeId, setActiveId] = useState<string>(
+    APPS.find((a) => a.initiallyOpen)?.id ?? APPS[0].id
+  );
   const [showAbout, setShowAbout] = useState(false);
-  const topZ = useRef(WINDOW_CONFIGS.length);
+  const topZ = useRef(APPS.length);
 
-  function focusWindow(id: WindowId) {
+  // Loaded once for defaultPosition/defaultWidth/defaultHeight on first mount
+  const [storedLayout] = useState<Record<string, StoredLayout>>(loadLayout);
+  // Mutable ref tracking live layout so position and size callbacks share state
+  const layoutRef = useRef<Record<string, StoredLayout>>({ ...storedLayout });
+
+  function focusWindow(id: string) {
     topZ.current += 1;
     setActiveId(id);
     setStates((prev) => ({
@@ -252,31 +159,30 @@ export default function Desktop() {
     }));
   }
 
-  function closeWindow(id: WindowId) {
+  function closeWindow(id: string) {
     setStates((prev) => ({ ...prev, [id]: { ...prev[id], isOpen: false } }));
-    const next = WINDOW_CONFIGS.find(
-      (c) => c.id !== id && states[c.id].isOpen && !states[c.id].isMinimized
+    const next = APPS.find(
+      (a) => a.id !== id && states[a.id].isOpen && !states[a.id].isMinimized
     );
     if (next) setActiveId(next.id);
   }
 
-  function toggleMinimize(id: WindowId) {
+  function toggleMinimize(id: string) {
     const isCurrentlyMinimized = states[id].isMinimized;
     setStates((prev) => ({
       ...prev,
       [id]: { ...prev[id], isMinimized: !prev[id].isMinimized },
     }));
-    // When minimizing the active window, focus the next available non-minimized window
     if (!isCurrentlyMinimized && activeId === id) {
-      const next = WINDOW_CONFIGS.find(
-        (c) => c.id !== id && states[c.id].isOpen && !states[c.id].isMinimized
+      const next = APPS.find(
+        (a) => a.id !== id && states[a.id].isOpen && !states[a.id].isMinimized
       );
       if (next) focusWindow(next.id);
     }
   }
 
-  // Dock click: three-state toggle — closed→open, minimized→restore, open→minimize
-  function openOrFocus(id: WindowId) {
+  // Dock click: three-state — closed→open, minimized→restore, open→minimize
+  function openOrFocus(id: string) {
     const s = states[id];
     if (!s.isOpen) {
       topZ.current += 1;
@@ -297,8 +203,8 @@ export default function Desktop() {
     }
   }
 
-  // Menu action: never closes — opens/restores if needed, otherwise just focuses
-  function showWindow(id: WindowId) {
+  // Menu action: never closes — opens/restores if needed, otherwise focuses
+  function showWindow(id: string) {
     const s = states[id];
     if (!s.isOpen || s.isMinimized) {
       topZ.current += 1;
@@ -315,8 +221,8 @@ export default function Desktop() {
   function handleQuit() {
     setStates((prev) => {
       const next = { ...prev };
-      WINDOW_CONFIGS.forEach((c) => {
-        next[c.id] = { ...next[c.id], isOpen: false };
+      APPS.forEach((a) => {
+        next[a.id] = { ...next[a.id], isOpen: false };
       });
       return next;
     });
@@ -344,13 +250,12 @@ export default function Desktop() {
           handleQuit();
           break;
         case "Backquote": {
-          // Cmd+` — cycle through open non-minimized windows
-          const openWindows = WINDOW_CONFIGS.filter(
-            (c) => states[c.id].isOpen && !states[c.id].isMinimized
+          const openWindows = APPS.filter(
+            (a) => states[a.id].isOpen && !states[a.id].isMinimized
           );
           if (openWindows.length < 2) break;
           e.preventDefault();
-          const currentIndex = openWindows.findIndex((c) => c.id === activeId);
+          const currentIndex = openWindows.findIndex((a) => a.id === activeId);
           const nextIndex = (currentIndex + 1) % openWindows.length;
           focusWindow(openWindows[nextIndex].id);
           break;
@@ -359,10 +264,14 @@ export default function Desktop() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId, states]);
 
   function handleMenuAction(action: MenuAction) {
+    if (action.startsWith("open-")) {
+      showWindow(action.slice(5));
+      return;
+    }
     switch (action) {
       case "about-portfolio":
         setShowAbout(true);
@@ -375,21 +284,6 @@ export default function Desktop() {
         break;
       case "minimize":
         if (states[activeId]?.isOpen) toggleMinimize(activeId);
-        break;
-      case "open-hello":
-        showWindow("hello");
-        break;
-      case "open-about":
-        showWindow("about");
-        break;
-      case "open-projects":
-        showWindow("projects");
-        break;
-      case "open-experience":
-        showWindow("experience");
-        break;
-      case "open-contact":
-        showWindow("contact");
         break;
       case "github":
         window.open("https://github.com/LuiAr", "_blank", "noopener,noreferrer");
@@ -405,30 +299,28 @@ export default function Desktop() {
   }
 
   const activeTitle =
-    WINDOW_CONFIGS.find((c) => c.id === activeId)?.title ?? "Portfolio";
+    APPS.find((a) => a.id === activeId)?.title ?? "Portfolio";
 
-  // Checked: windows that are open and visible (not minimized)
+  // Build window menu items from the registry for MenuBar
+  const windowMenuItems: MenuItem[] = APPS.map((app) => ({
+    label: app.menuLabel,
+    action: `open-${app.id}` as MenuAction,
+  }));
+
+  // Checked: windows that are open and visible
   const checkedActions = new Set<MenuAction>(
-    WINDOW_CONFIGS
-      .filter((c) => states[c.id].isOpen && !states[c.id].isMinimized)
-      .map((c) => `open-${c.id}` as MenuAction)
+    APPS
+      .filter((a) => states[a.id].isOpen && !states[a.id].isMinimized)
+      .map((a) => `open-${a.id}` as MenuAction)
   );
 
-  // Dynamically disabled: close/minimize unavailable when no active visible window
+  // Dynamically disabled: close/minimize when no visible active window
   const disabledActions = new Set<MenuAction>();
   const activeState = states[activeId];
   if (!activeState?.isOpen || activeState?.isMinimized) {
     disabledActions.add("close");
     disabledActions.add("minimize");
   }
-
-  const windowContent: Record<WindowId, React.ReactNode> = {
-    hello: <DynamicHero />,
-    about: <AboutSection />,
-    projects: <ProjectsSection />,
-    experience: <ExperienceSection />,
-    contact: <ContactSection />,
-  };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -438,6 +330,7 @@ export default function Desktop() {
         onAction={handleMenuAction}
         checkedActions={checkedActions}
         disabledActions={disabledActions}
+        windowMenuItems={windowMenuItems}
       />
 
       {/* Desktop area */}
@@ -446,57 +339,74 @@ export default function Desktop() {
         className="flex-1 relative overflow-hidden mac-desktop-bg"
       >
         <AnimatePresence>
-          {WINDOW_CONFIGS.map((config) => {
-            const s = states[config.id];
+          {APPS.map((app) => {
+            const s = states[app.id];
             if (!s.isOpen || s.isMinimized) return null;
+            const stored = storedLayout[app.id];
+            const Content = app.Content;
             return (
               <DraggableWindow
-                key={config.id}
-                title={config.title}
-                isActive={activeId === config.id}
+                key={app.id}
+                title={app.title}
+                isActive={activeId === app.id}
                 isMinimized={s.isMinimized}
-                defaultPosition={config.defaultPosition}
-                defaultWidth={config.defaultWidth}
-                defaultHeight={config.defaultHeight}
+                defaultPosition={stored ? { x: stored.x, y: stored.y } : app.defaultPosition}
+                defaultWidth={stored?.width ?? app.defaultWidth}
+                defaultHeight={stored?.height ?? app.defaultHeight}
                 zIndex={s.zIndex}
-                onFocus={() => focusWindow(config.id)}
-                onClose={() => closeWindow(config.id)}
-                onMinimize={() => toggleMinimize(config.id)}
+                onFocus={() => focusWindow(app.id)}
+                onClose={() => closeWindow(app.id)}
+                onMinimize={() => toggleMinimize(app.id)}
+                onPositionChange={(pos) => {
+                  const current = layoutRef.current[app.id] ?? { width: app.defaultWidth, height: app.defaultHeight, x: 0, y: 0 };
+                  const updated = { ...current, ...pos };
+                  layoutRef.current[app.id] = updated;
+                  saveLayout(app.id, updated);
+                }}
+                onSizeChange={(size) => {
+                  const current = layoutRef.current[app.id] ?? { x: app.defaultPosition.x, y: app.defaultPosition.y, width: app.defaultWidth, height: app.defaultHeight };
+                  const updated = { ...current, ...size };
+                  layoutRef.current[app.id] = updated;
+                  saveLayout(app.id, updated);
+                }}
                 desktopRef={desktopRef}
               >
-                {windowContent[config.id]}
+                <Content />
               </DraggableWindow>
             );
           })}
         </AnimatePresence>
       </div>
 
-      {/* Dock */}
-      <div className="flex-shrink-0 h-16 border-t-2 border-[var(--color-ink)] bg-[var(--color-cream)] flex items-center justify-center gap-1 px-4">
-        {WINDOW_CONFIGS.map((config) => {
-          const s = states[config.id];
-          const isActive = activeId === config.id && s.isOpen && !s.isMinimized;
-          return (
-            <button
-              key={config.id}
-              onClick={() => openOrFocus(config.id)}
-              className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1 border border-transparent hover:border-[var(--color-ink)] hover:bg-[var(--color-cream-dark)] transition-colors",
-                isActive && "bg-[var(--color-cream-dark)] border-[var(--color-ink)]"
-              )}
-            >
-              <DockIcon id={config.id} />
-              <span className="text-[9px] leading-tight">{config.dockLabel}</span>
-              <span
+      {/* Dock — scrollable when many apps are open */}
+      <div className="flex-shrink-0 h-16 border-t-2 border-[var(--color-ink)] bg-[var(--color-cream)] flex items-center justify-center px-4 overflow-x-auto">
+        <div className="flex items-center gap-1">
+          {APPS.map((app) => {
+            const s = states[app.id];
+            const isActive = activeId === app.id && s.isOpen && !s.isMinimized;
+            const Icon = app.Icon;
+            return (
+              <button
+                key={app.id}
+                onClick={() => openOrFocus(app.id)}
                 className={cn(
-                  "w-1 h-1 border border-[var(--color-ink)]",
-                  s.isOpen && !s.isMinimized ? "bg-[var(--color-ink)]" : "bg-transparent"
+                  "flex-shrink-0 flex flex-col items-center gap-0.5 px-3 py-1 border border-transparent hover:border-[var(--color-ink)] hover:bg-[var(--color-cream-dark)] transition-colors",
+                  isActive && "bg-[var(--color-cream-dark)] border-[var(--color-ink)]"
                 )}
-                style={{ visibility: s.isOpen ? "visible" : "hidden" }}
-              />
-            </button>
-          );
-        })}
+              >
+                <Icon />
+                <span className="text-[9px] leading-tight">{app.dockLabel}</span>
+                <span
+                  className={cn(
+                    "w-1 h-1 border border-[var(--color-ink)]",
+                    s.isOpen && !s.isMinimized ? "bg-[var(--color-ink)]" : "bg-transparent"
+                  )}
+                  style={{ visibility: s.isOpen ? "visible" : "hidden" }}
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* About modal */}

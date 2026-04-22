@@ -15,6 +15,8 @@ export interface DraggableWindowProps {
   onFocus: () => void;
   onClose: () => void;
   onMinimize: () => void;
+  onPositionChange?: (pos: { x: number; y: number }) => void;
+  onSizeChange?: (size: { width: number; height: number }) => void;
   desktopRef: React.RefObject<HTMLDivElement | null>;
   children: React.ReactNode;
 }
@@ -33,6 +35,8 @@ export default function DraggableWindow({
   onFocus,
   onClose,
   onMinimize,
+  onPositionChange,
+  onSizeChange,
   desktopRef,
   children,
 }: DraggableWindowProps) {
@@ -59,6 +63,10 @@ export default function DraggableWindow({
     const dy = e.clientY - resizeStart.current.y;
     setWidth(Math.max(MIN_WIDTH, resizeStart.current.width + dx));
     setHeight(Math.max(MIN_HEIGHT, resizeStart.current.height + dy));
+  }
+
+  function handleResizeLostCapture() {
+    onSizeChange?.({ width, height });
   }
 
   function handleZoom(e: React.MouseEvent) {
@@ -90,6 +98,7 @@ export default function DraggableWindow({
       dragConstraints={desktopRef as React.RefObject<Element>}
       style={motionStyle}
       onPointerDown={onFocus}
+      onDragEnd={() => onPositionChange?.({ x: x.get(), y: y.get() })}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
@@ -151,6 +160,7 @@ export default function DraggableWindow({
           className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
           onPointerDown={handleResizePointerDown}
           onPointerMove={handleResizePointerMove}
+          onLostPointerCapture={handleResizeLostCapture}
           style={{ touchAction: "none" }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
