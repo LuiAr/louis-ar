@@ -170,6 +170,16 @@ export default function Desktop() {
     if (next) setActiveId(next.id);
   }
 
+  function closeAllWindows() {
+    setStates((prev) => {
+      const allClosed = {} as Record<WindowId, WindowState>;
+      WINDOW_CONFIGS.forEach((c) => {
+        allClosed[c.id] = { ...prev[c.id], isOpen: false };
+      });
+      return allClosed;
+    });
+  }
+
   function toggleMinimize(id: WindowId) {
     setStates((prev) => ({
       ...prev,
@@ -207,7 +217,7 @@ export default function Desktop() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Top menu bar */}
-      <MenuBar activeTitle={activeTitle} />
+      <MenuBar activeTitle={activeTitle} onQuit={closeAllWindows} />
 
       {/* Desktop area */}
       <div
