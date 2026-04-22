@@ -39,6 +39,7 @@ export default function DraggableWindow({
   const dragControls = useDragControls();
   const x = useMotionValue(defaultPosition.x);
   const y = useMotionValue(defaultPosition.y);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   // Manual resize state
   const [width, setWidth] = useState(defaultWidth);
@@ -60,15 +61,15 @@ export default function DraggableWindow({
     setHeight(Math.max(MIN_HEIGHT, resizeStart.current.height + dy));
   }
 
-  return (
-    <motion.div
-      drag
-      dragControls={dragControls}
-      dragListener={false}
-      dragMomentum={false}
-      dragElastic={0}
-      dragConstraints={desktopRef as React.RefObject<Element>}
-      style={{
+  function handleZoom(e: React.MouseEvent) {
+    e.stopPropagation();
+    setIsZoomed((prev) => !prev);
+  }
+
+  // When zoomed: fill the desktop, omit x/y so motion values don't interfere
+  const motionStyle = isZoomed
+    ? ({ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex } as const)
+    : ({
         x,
         y,
         zIndex,
@@ -77,7 +78,17 @@ export default function DraggableWindow({
         left: 0,
         width,
         height: isMinimized ? "auto" : height,
-      }}
+      } as const);
+
+  return (
+    <motion.div
+      drag={!isZoomed}
+      dragControls={dragControls}
+      dragListener={false}
+      dragMomentum={false}
+      dragElastic={0}
+      dragConstraints={desktopRef as React.RefObject<Element>}
+      style={motionStyle}
       onPointerDown={onFocus}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -88,10 +99,11 @@ export default function DraggableWindow({
       {/* Title bar — drag handle */}
       <div
         className={cn(
-          "flex-shrink-0 flex items-center h-[22px] relative border-b-2 border-[var(--color-ink)] select-none cursor-move",
+          "flex-shrink-0 flex items-center h-[22px] relative border-b-2 border-[var(--color-ink)] select-none",
+          isZoomed ? "cursor-default" : "cursor-move",
           isActive ? "mac-titlebar-stripes" : "bg-[var(--color-cream-dark)]"
         )}
-        onPointerDown={(e) => dragControls.start(e)}
+        onPointerDown={(e) => !isZoomed && dragControls.start(e)}
       >
         {/* Window control buttons */}
         <div
@@ -108,14 +120,17 @@ export default function DraggableWindow({
             onClick={(e) => { e.stopPropagation(); onMinimize(); }}
             className="w-[11px] h-[11px] border border-[var(--color-ink)] bg-[var(--color-button-bg)] hover:bg-[var(--color-ink)]"
           />
-          {/* Zoom button — kept visually, no action */}
           <button
             aria-label="zoom"
-            className="w-[11px] h-[11px] border border-[var(--color-ink)] bg-[var(--color-button-bg)] cursor-default"
+            onClick={handleZoom}
+            className={cn(
+              "w-[11px] h-[11px] border border-[var(--color-ink)] hover:bg-[var(--color-ink)]",
+              isZoomed ? "bg-[var(--color-ink)]" : "bg-[var(--color-button-bg)]"
+            )}
           />
         </div>
 
-        {/* Centered title on white pill */}
+        {/* Centered title */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <span className="bg-[var(--color-window-bg)] px-2 text-[11px] font-bold leading-none text-[var(--color-ink)]">
             {title}
@@ -123,15 +138,15 @@ export default function DraggableWindow({
         </div>
       </div>
 
-      {/* Content area — hidden when minimized */}
+      {/* Content area */}
       {!isMinimized && (
         <div className="flex-1 min-h-0 overflow-auto">
           {children}
         </div>
       )}
 
-      {/* Resize handle — bottom-right corner, classic Mac diagonal lines */}
-      {!isMinimized && (
+      {/* Resize handle — hidden when zoomed or minimized */}
+      {!isMinimized && !isZoomed && (
         <div
           className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
           onPointerDown={handleResizePointerDown}

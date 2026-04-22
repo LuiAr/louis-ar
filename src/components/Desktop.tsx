@@ -254,17 +254,28 @@ export default function Desktop() {
 
   function closeWindow(id: WindowId) {
     setStates((prev) => ({ ...prev, [id]: { ...prev[id], isOpen: false } }));
-    const next = WINDOW_CONFIGS.find((c) => c.id !== id && states[c.id].isOpen);
+    const next = WINDOW_CONFIGS.find(
+      (c) => c.id !== id && states[c.id].isOpen && !states[c.id].isMinimized
+    );
     if (next) setActiveId(next.id);
   }
 
   function toggleMinimize(id: WindowId) {
+    const isCurrentlyMinimized = states[id].isMinimized;
     setStates((prev) => ({
       ...prev,
       [id]: { ...prev[id], isMinimized: !prev[id].isMinimized },
     }));
+    // When minimizing the active window, focus the next available non-minimized window
+    if (!isCurrentlyMinimized && activeId === id) {
+      const next = WINDOW_CONFIGS.find(
+        (c) => c.id !== id && states[c.id].isOpen && !states[c.id].isMinimized
+      );
+      if (next) focusWindow(next.id);
+    }
   }
 
+  // Dock click: three-state toggle — closed→open, minimized→restore, open→minimize
   function openOrFocus(id: WindowId) {
     const s = states[id];
     if (!s.isOpen) {
@@ -274,8 +285,30 @@ export default function Desktop() {
         ...prev,
         [id]: { isOpen: true, isMinimized: false, zIndex: topZ.current },
       }));
+    } else if (s.isMinimized) {
+      topZ.current += 1;
+      setActiveId(id);
+      setStates((prev) => ({
+        ...prev,
+        [id]: { ...prev[id], isMinimized: false, zIndex: topZ.current },
+      }));
     } else {
-      closeWindow(id);
+      toggleMinimize(id);
+    }
+  }
+
+  // Menu action: never closes — opens/restores if needed, otherwise just focuses
+  function showWindow(id: WindowId) {
+    const s = states[id];
+    if (!s.isOpen || s.isMinimized) {
+      topZ.current += 1;
+      setActiveId(id);
+      setStates((prev) => ({
+        ...prev,
+        [id]: { isOpen: true, isMinimized: false, zIndex: topZ.current },
+      }));
+    } else {
+      focusWindow(id);
     }
   }
 
@@ -293,23 +326,35 @@ export default function Desktop() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (!e.metaKey) return;
-      switch (e.key) {
-        case "w":
-          if (states[activeId]?.isOpen) {
+      switch (e.code) {
+        case "KeyW":
+          if (states[activeId]?.isOpen && !states[activeId]?.isMinimized) {
             e.preventDefault();
             closeWindow(activeId);
           }
           break;
-        case "m":
+        case "KeyM":
           if (states[activeId]?.isOpen) {
             e.preventDefault();
             toggleMinimize(activeId);
           }
           break;
-        case "q":
+        case "KeyQ":
           e.preventDefault();
           handleQuit();
           break;
+        case "Backquote": {
+          // Cmd+` — cycle through open non-minimized windows
+          const openWindows = WINDOW_CONFIGS.filter(
+            (c) => states[c.id].isOpen && !states[c.id].isMinimized
+          );
+          if (openWindows.length < 2) break;
+          e.preventDefault();
+          const currentIndex = openWindows.findIndex((c) => c.id === activeId);
+          const nextIndex = (currentIndex + 1) % openWindows.length;
+          focusWindow(openWindows[nextIndex].id);
+          break;
+        }
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -332,19 +377,19 @@ export default function Desktop() {
         if (states[activeId]?.isOpen) toggleMinimize(activeId);
         break;
       case "open-hello":
-        openOrFocus("hello");
+        showWindow("hello");
         break;
       case "open-about":
-        openOrFocus("about");
+        showWindow("about");
         break;
       case "open-projects":
-        openOrFocus("projects");
+        showWindow("projects");
         break;
       case "open-experience":
-        openOrFocus("experience");
+        showWindow("experience");
         break;
       case "open-contact":
-        openOrFocus("contact");
+        showWindow("contact");
         break;
       case "github":
         window.open("https://github.com/LuiAr", "_blank", "noopener,noreferrer");
@@ -383,7 +428,7 @@ export default function Desktop() {
         <AnimatePresence>
           {WINDOW_CONFIGS.map((config) => {
             const s = states[config.id];
-            if (!s.isOpen) return null;
+            if (!s.isOpen || s.isMinimized) return null;
             return (
               <DraggableWindow
                 key={config.id}
@@ -410,7 +455,7 @@ export default function Desktop() {
       <div className="flex-shrink-0 h-16 border-t-2 border-[var(--color-ink)] bg-[var(--color-cream)] flex items-center justify-center gap-1 px-4">
         {WINDOW_CONFIGS.map((config) => {
           const s = states[config.id];
-          const isActive = activeId === config.id && s.isOpen;
+          const isActive = activeId === config.id && s.isOpen && !s.isMinimized;
           return (
             <button
               key={config.id}
@@ -423,7 +468,10 @@ export default function Desktop() {
               <DockIcon id={config.id} />
               <span className="text-[9px] leading-tight">{config.dockLabel}</span>
               <span
-                className="w-1 h-1 bg-[var(--color-ink)]"
+                className={cn(
+                  "w-1 h-1 border border-[var(--color-ink)]",
+                  s.isOpen && !s.isMinimized ? "bg-[var(--color-ink)]" : "bg-transparent"
+                )}
                 style={{ visibility: s.isOpen ? "visible" : "hidden" }}
               />
             </button>
