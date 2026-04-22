@@ -9,7 +9,7 @@ import { APPS } from "@/data/apps";
 
 // ── localStorage persistence ──────────────────────────────────────────────────
 
-const STORAGE_KEY = "louis-ar-windows";
+const STORAGE_KEY = "louis-ar-windows-v2";
 
 interface StoredLayout {
   x: number;
