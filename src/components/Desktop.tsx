@@ -407,6 +407,21 @@ export default function Desktop() {
   const activeTitle =
     WINDOW_CONFIGS.find((c) => c.id === activeId)?.title ?? "Portfolio";
 
+  // Checked: windows that are open and visible (not minimized)
+  const checkedActions = new Set<MenuAction>(
+    WINDOW_CONFIGS
+      .filter((c) => states[c.id].isOpen && !states[c.id].isMinimized)
+      .map((c) => `open-${c.id}` as MenuAction)
+  );
+
+  // Dynamically disabled: close/minimize unavailable when no active visible window
+  const disabledActions = new Set<MenuAction>();
+  const activeState = states[activeId];
+  if (!activeState?.isOpen || activeState?.isMinimized) {
+    disabledActions.add("close");
+    disabledActions.add("minimize");
+  }
+
   const windowContent: Record<WindowId, React.ReactNode> = {
     hello: <DynamicHero />,
     about: <AboutSection />,
@@ -418,7 +433,12 @@ export default function Desktop() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Top menu bar */}
-      <MenuBar activeTitle={activeTitle} onAction={handleMenuAction} />
+      <MenuBar
+        activeTitle={activeTitle}
+        onAction={handleMenuAction}
+        checkedActions={checkedActions}
+        disabledActions={disabledActions}
+      />
 
       {/* Desktop area */}
       <div
