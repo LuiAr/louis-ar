@@ -3,6 +3,7 @@ import AboutSection from "@/components/sections/AboutSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import ContactSection from "@/components/sections/ContactSection";
+import DinoGame from "@/components/sections/DinoGame";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,27 @@ function ContactIcon() {
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
       <rect x="2" y="6" width="24" height="16" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
       <path d="M2 8 L14 16 L26 8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    </svg>
+  );
+}
+
+function DinoIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Body */}
+      <rect x="5" y="12" width="13" height="10" fill="currentColor" />
+      {/* Head */}
+      <rect x="11" y="6" width="10" height="8" fill="currentColor" />
+      {/* Eye */}
+      <rect x="18" y="8" width="2" height="2" fill="var(--color-cream)" />
+      {/* Tail */}
+      <rect x="2" y="14" width="4" height="4" fill="currentColor" />
+      {/* Leg 1 */}
+      <rect x="7" y="22" width="3" height="4" fill="currentColor" />
+      {/* Leg 2 */}
+      <rect x="13" y="22" width="3" height="4" fill="currentColor" />
+      {/* Ground */}
+      <rect x="2" y="26" width="24" height="1" fill="currentColor" />
     </svg>
   );
 }
@@ -149,5 +171,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: ContactIcon,
     Content: ContactSection,
+  },
+  {
+    id: "dino",
+    title: "DinoRun.app",
+    menuLabel: "DinoRun",
+    dockLabel: "DinoRun",
+    defaultPosition: { x: 180, y: 80 },
+    defaultWidth: 580,
+    defaultHeight: 330,
+    initiallyOpen: false,
+    Icon: DinoIcon,
+    Content: DinoGame,
   },
 ];
