@@ -300,7 +300,7 @@ export default function MenuBar({
   return (
     <nav
       ref={menuBarRef}
-      className="relative z-10 flex-shrink-0 flex items-center h-[22px] bg-[var(--color-cream)] border-b-2 border-[var(--color-ink)]"
+      className="relative z-[9999] flex-shrink-0 flex items-center h-[22px] bg-[var(--color-cream)] border-b-2 border-[var(--color-ink)]"
       style={{ fontFamily: "var(--font-body)" }}
     >
       {/* Pear logo — Apple menu */}
