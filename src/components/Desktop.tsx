@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { cn } from "@/lib/cn";
 import DraggableWindow from "@/components/ui/DraggableWindow";
-import MenuBar from "@/components/ui/MenuBar";
+import MenuBar, { type MenuAction } from "@/components/ui/MenuBar";
 import DynamicHero from "@/components/sections/DynamicHero";
 import AboutSection from "@/components/sections/AboutSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
@@ -27,7 +27,7 @@ const WINDOW_CONFIGS: WindowConfig[] = [
   {
     id: "hello",
     title: "Hello.txt",
-    defaultPosition: { x: 40, y: 55 },   // left, slightly down from top
+    defaultPosition: { x: 40, y: 55 },
     defaultWidth: 480,
     defaultHeight: 320,
     initiallyOpen: true,
@@ -36,7 +36,7 @@ const WINDOW_CONFIGS: WindowConfig[] = [
   {
     id: "about",
     title: "ReadMe.txt",
-    defaultPosition: { x: 660, y: 82 },  // right, a touch lower for natural feel
+    defaultPosition: { x: 660, y: 82 },
     defaultWidth: 520,
     defaultHeight: 420,
     initiallyOpen: true,
@@ -147,12 +147,100 @@ function DockIcon({ id }: { id: WindowId }) {
   }
 }
 
+// ── About modal ───────────────────────────────────────────────────────────────
+
+function AboutMacSVG() {
+  return (
+    <svg width="56" height="64" viewBox="0 0 64 72" fill="none">
+      <rect x="8" y="4" width="48" height="56" rx="4" fill="#f5f0e8" stroke="#f5f0e8" strokeWidth="2" />
+      <rect x="6" y="2" width="52" height="58" rx="5" stroke="#f5f0e8" strokeWidth="3" fill="none" />
+      <rect x="12" y="8" width="40" height="32" rx="2" fill="#1a1611" />
+      <rect x="14" y="10" width="36" height="28" fill="#f5f0e8" />
+      <rect x="21" y="17" width="5" height="6" fill="#1a1611" />
+      <rect x="38" y="17" width="5" height="6" fill="#1a1611" />
+      <path d="M22 28 Q32 36 42 28" stroke="#1a1611" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <rect x="18" y="44" width="28" height="4" rx="1" fill="#1a1611" opacity="0.3" />
+      <rect x="16" y="60" width="32" height="6" rx="2" fill="#f5f0e8" stroke="#f5f0e8" strokeWidth="1" />
+      <rect x="14" y="58" width="36" height="8" rx="2" stroke="#f5f0e8" strokeWidth="2" fill="none" />
+      <rect x="24" y="66" width="16" height="4" fill="#f5f0e8" />
+    </svg>
+  );
+}
+
+function AboutModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[500] flex items-center justify-center"
+      style={{ backgroundColor: "rgba(0,0,0,0.25)" }}
+      onPointerDown={onClose}
+    >
+      <div
+        className="mac-window w-[340px]"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        {/* Title bar */}
+        <div className="flex items-center h-[22px] mac-titlebar-stripes border-b-2 border-[var(--color-ink)] relative">
+          <div
+            className="flex items-center gap-[3px] pl-[6px] z-10"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              aria-label="close"
+              onClick={onClose}
+              className="w-[11px] h-[11px] border border-[var(--color-ink)] bg-[var(--color-button-bg)] hover:bg-[var(--color-ink)]"
+            />
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="bg-[var(--color-window-bg)] px-2 text-[11px] font-bold">
+              About This Portfolio
+            </span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-4 bg-[var(--color-window-bg)]">
+          <div className="flex justify-center py-2 bg-[var(--color-ink)]">
+            <AboutMacSVG />
+          </div>
+
+          <div className="text-center space-y-1">
+            <p className="text-[13px] font-bold">Louis Ar&apos;s Portfolio</p>
+            <p className="text-[11px] text-[var(--color-ink-muted)]">Version 1.0</p>
+          </div>
+
+          <div className="border-t border-[var(--color-ink-muted)] pt-3 space-y-1 text-center">
+            <p className="text-[11px] text-[var(--color-ink-muted)]">
+              Built with Next.js 15, Tailwind CSS v4,
+            </p>
+            <p className="text-[11px] text-[var(--color-ink-muted)]">
+              and Motion v12.
+            </p>
+            <p className="text-[11px] text-[var(--color-ink-muted)] pt-1">
+              Inspired by Mac OS System 7 (1991).
+            </p>
+          </div>
+
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={onClose}
+              className="mac-button mac-button-default"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Desktop ───────────────────────────────────────────────────────────────────
 
 export default function Desktop() {
   const desktopRef = useRef<HTMLDivElement>(null);
   const [states, setStates] = useState<Record<WindowId, WindowState>>(buildInitialState);
   const [activeId, setActiveId] = useState<WindowId>("hello");
+  const [showAbout, setShowAbout] = useState(false);
   const topZ = useRef(WINDOW_CONFIGS.length);
 
   function focusWindow(id: WindowId) {
@@ -180,7 +268,6 @@ export default function Desktop() {
   function openOrFocus(id: WindowId) {
     const s = states[id];
     if (!s.isOpen) {
-      // Closed → open and bring to front
       topZ.current += 1;
       setActiveId(id);
       setStates((prev) => ({
@@ -188,8 +275,87 @@ export default function Desktop() {
         [id]: { isOpen: true, isMinimized: false, zIndex: topZ.current },
       }));
     } else {
-      // Already open → close it
       closeWindow(id);
+    }
+  }
+
+  function handleQuit() {
+    setStates((prev) => {
+      const next = { ...prev };
+      WINDOW_CONFIGS.forEach((c) => {
+        next[c.id] = { ...next[c.id], isOpen: false };
+      });
+      return next;
+    });
+  }
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!e.metaKey) return;
+      switch (e.key) {
+        case "w":
+          if (states[activeId]?.isOpen) {
+            e.preventDefault();
+            closeWindow(activeId);
+          }
+          break;
+        case "m":
+          if (states[activeId]?.isOpen) {
+            e.preventDefault();
+            toggleMinimize(activeId);
+          }
+          break;
+        case "q":
+          e.preventDefault();
+          handleQuit();
+          break;
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, states]);
+
+  function handleMenuAction(action: MenuAction) {
+    switch (action) {
+      case "about-portfolio":
+        setShowAbout(true);
+        break;
+      case "quit":
+        handleQuit();
+        break;
+      case "close":
+        if (states[activeId]?.isOpen) closeWindow(activeId);
+        break;
+      case "minimize":
+        if (states[activeId]?.isOpen) toggleMinimize(activeId);
+        break;
+      case "open-hello":
+        openOrFocus("hello");
+        break;
+      case "open-about":
+        openOrFocus("about");
+        break;
+      case "open-projects":
+        openOrFocus("projects");
+        break;
+      case "open-experience":
+        openOrFocus("experience");
+        break;
+      case "open-contact":
+        openOrFocus("contact");
+        break;
+      case "github":
+        window.open("https://github.com/LuiAr", "_blank", "noopener,noreferrer");
+        break;
+      case "linkedin":
+        window.open(
+          "https://www.linkedin.com/in/louis-arbey",
+          "_blank",
+          "noopener,noreferrer"
+        );
+        break;
     }
   }
 
@@ -207,7 +373,7 @@ export default function Desktop() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Top menu bar */}
-      <MenuBar activeTitle={activeTitle} />
+      <MenuBar activeTitle={activeTitle} onAction={handleMenuAction} />
 
       {/* Desktop area */}
       <div
@@ -256,7 +422,6 @@ export default function Desktop() {
             >
               <DockIcon id={config.id} />
               <span className="text-[9px] leading-tight">{config.dockLabel}</span>
-              {/* Open indicator — square dot, no border-radius */}
               <span
                 className="w-1 h-1 bg-[var(--color-ink)]"
                 style={{ visibility: s.isOpen ? "visible" : "hidden" }}
@@ -265,6 +430,9 @@ export default function Desktop() {
           );
         })}
       </div>
+
+      {/* About modal */}
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   );
 }
