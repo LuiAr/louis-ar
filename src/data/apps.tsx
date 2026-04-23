@@ -5,6 +5,7 @@ import ExperienceSection from "@/components/sections/ExperienceSection";
 import ContactSection from "@/components/sections/ContactSection";
 import DinoGame from "@/components/sections/DinoGame";
 import SnakeGame from "@/components/sections/SnakeGame";
+import Terminal from "@/components/sections/Terminal";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -106,6 +107,22 @@ function DinoIcon() {
       <rect x="13" y="22" width="3" height="4" fill="currentColor" />
       {/* Ground */}
       <rect x="2" y="26" width="24" height="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function TerminalIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Screen background */}
+      <rect x="2" y="2" width="24" height="18" stroke="currentColor" strokeWidth="1.5" fill="var(--color-ink)" />
+      {/* Prompt */}
+      <rect x="5" y="6" width="4" height="2" fill="var(--color-cream)" />
+      <rect x="5" y="10" width="8" height="2" fill="var(--color-cream)" opacity="0.6" />
+      <rect x="5" y="14" width="6" height="2" fill="var(--color-cream)" opacity="0.3" />
+      {/* Base */}
+      <rect x="4" y="20" width="20" height="3" fill="currentColor" />
+      <rect x="7" y="23" width="14" height="2" fill="currentColor" />
     </svg>
   );
 }
@@ -216,5 +233,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: SnakeIcon,
     Content: SnakeGame,
+  },
+  {
+    id: "terminal",
+    title: "Terminal",
+    menuLabel: "Terminal",
+    dockLabel: "Terminal",
+    defaultPosition: { x: 150, y: 80 },
+    defaultWidth: 560,
+    defaultHeight: 380,
+    initiallyOpen: false,
+    Icon: TerminalIcon,
+    Content: Terminal,
   },
 ];
