@@ -4,6 +4,7 @@ import ProjectsSection from "@/components/sections/ProjectsSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import ContactSection from "@/components/sections/ContactSection";
 import DinoGame from "@/components/sections/DinoGame";
+import SnakeGame from "@/components/sections/SnakeGame";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,26 @@ function ContactIcon() {
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
       <rect x="2" y="6" width="24" height="16" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
       <path d="M2 8 L14 16 L26 8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    </svg>
+  );
+}
+
+function SnakeIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Winding body */}
+      <rect x="2" y="20" width="6" height="5" fill="currentColor" />
+      <rect x="8" y="20" width="6" height="5" fill="currentColor" />
+      <rect x="14" y="20" width="6" height="5" fill="currentColor" />
+      <rect x="14" y="14" width="6" height="6" fill="currentColor" />
+      <rect x="8" y="14" width="6" height="6" fill="currentColor" />
+      <rect x="8" y="8" width="6" height="6" fill="currentColor" />
+      {/* Head */}
+      <rect x="14" y="5" width="10" height="9" fill="currentColor" />
+      {/* Eye */}
+      <rect x="20" y="7" width="2" height="2" fill="var(--color-cream)" />
+      {/* Food dot */}
+      <rect x="2" y="4" width="5" height="5" fill="currentColor" opacity="0.35" />
     </svg>
   );
 }
@@ -183,5 +204,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: DinoIcon,
     Content: DinoGame,
+  },
+  {
+    id: "snake",
+    title: "Snake.app",
+    menuLabel: "Snake",
+    dockLabel: "Snake",
+    defaultPosition: { x: 200, y: 90 },
+    defaultWidth: 520,
+    defaultHeight: 360,
+    initiallyOpen: false,
+    Icon: SnakeIcon,
+    Content: SnakeGame,
   },
 ];
