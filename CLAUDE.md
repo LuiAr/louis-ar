@@ -90,7 +90,8 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
 ### 📋 Roadmap
 
 #### Phase 6: New Apps
-- [ ] **Snake Game** — Classic snake as a draggable window app
+- [x] **Snake Game** — Classic snake as a draggable window app (`src/components/sections/SnakeGame.tsx`; registered in `src/data/apps.tsx` as `Snake.app`)
+  - 28×15 checker-grid canvas, direction-aware head eyes, pulsing pixel-art apple, speed scaling every 3 apples, high score tracking, idle/playing/dead states
 - [ ] **Terminal** — Fake terminal with fun easter eggs
 - [ ] **Photo Viewer** — Gallery of project screenshots or photos
 
