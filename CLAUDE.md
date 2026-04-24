@@ -98,6 +98,18 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Single-image lightbox mode with Prev/Next navigation
   - Classic Mac toolbar, status bar showing file metadata
 
+#### Phase 7: Upcoming Ideas
+- [ ] **MacPaint** — Pixel-art drawing canvas with pencil, eraser, fill-bucket, and shape tools; B&W only; canvas saves to localStorage (`src/components/sections/MacPaint.tsx`)
+- [ ] **Music Player** — Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`)
+- [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
+
+---
+
+## Session End Routine
+At the end of every task, Claude must always:
+1. **List current TODO status** — show each roadmap item and whether it is ✅ done, 🚧 in progress, or 📋 planned
+2. **List Top 3 new ideas** — suggest three concrete, on-brand features that could be added next, with a one-sentence rationale each
+
 ---
 
 ## Next Actions
