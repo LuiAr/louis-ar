@@ -92,8 +92,11 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
 #### Phase 6: New Apps
 - [x] **Snake Game** — Classic snake as a draggable window app (`src/components/sections/SnakeGame.tsx`; registered in `src/data/apps.tsx` as `Snake.app`)
   - 28×15 checker-grid canvas, direction-aware head eyes, pulsing pixel-art apple, speed scaling every 3 apples, high score tracking, idle/playing/dead states
-- [ ] **Terminal** — Fake terminal with fun easter eggs
-- [ ] **Photo Viewer** — Gallery of project screenshots or photos
+- [x] **Terminal** — Fake terminal with fun easter eggs (`src/components/sections/Terminal.tsx`; registered in `src/data/apps.tsx`)
+- [x] **Photo Viewer** — Gallery of project screenshots or photos (`src/components/sections/PhotoViewer.tsx`; registered in `src/data/apps.tsx` as `Photos`)
+  - Grid view with 6 pixel-art images (profile photo + 5 SVG artworks for projects/work)
+  - Single-image lightbox mode with Prev/Next navigation
+  - Classic Mac toolbar, status bar showing file metadata
 
 ---
 
