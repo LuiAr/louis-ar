@@ -6,6 +6,7 @@ import ContactSection from "@/components/sections/ContactSection";
 import DinoGame from "@/components/sections/DinoGame";
 import SnakeGame from "@/components/sections/SnakeGame";
 import Terminal from "@/components/sections/Terminal";
+import PhotoViewer from "@/components/sections/PhotoViewer";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,25 @@ function DinoIcon() {
       <rect x="13" y="22" width="3" height="4" fill="currentColor" />
       {/* Ground */}
       <rect x="2" y="26" width="24" height="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function PhotoIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Frame */}
+      <rect x="2" y="4" width="24" height="18" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
+      {/* Mountain / landscape */}
+      <polygon points="2,22 9,12 15,18 20,13 26,22" fill="currentColor" />
+      {/* Sun */}
+      <rect x="18" y="7" width="5" height="5" stroke="currentColor" strokeWidth="1" fill="var(--color-cream-dark)" />
+      {/* Film strip bottom */}
+      <rect x="2" y="22" width="24" height="4" fill="currentColor" />
+      <rect x="4" y="23" width="3" height="2" fill="var(--color-cream)" />
+      <rect x="9" y="23" width="3" height="2" fill="var(--color-cream)" />
+      <rect x="14" y="23" width="3" height="2" fill="var(--color-cream)" />
+      <rect x="19" y="23" width="3" height="2" fill="var(--color-cream)" />
     </svg>
   );
 }
@@ -245,5 +265,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: TerminalIcon,
     Content: Terminal,
+  },
+  {
+    id: "photos",
+    title: "Photos",
+    menuLabel: "Photos",
+    dockLabel: "Photos",
+    defaultPosition: { x: 260, y: 70 },
+    defaultWidth: 520,
+    defaultHeight: 420,
+    initiallyOpen: false,
+    Icon: PhotoIcon,
+    Content: PhotoViewer,
   },
 ];
