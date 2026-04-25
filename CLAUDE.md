@@ -98,8 +98,14 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Single-image lightbox mode with Prev/Next navigation
   - Classic Mac toolbar, status bar showing file metadata
 
-#### Phase 7: Upcoming Ideas
-- [ ] **MacPaint** — Pixel-art drawing canvas with pencil, eraser, fill-bucket, and shape tools; B&W only; canvas saves to localStorage (`src/components/sections/MacPaint.tsx`)
+#### Phase 7: New Apps
+- [x] **MacPaint** — Pixel-art drawing canvas with pencil, eraser, fill-bucket, rect, and line tools; B&W only; canvas saves to localStorage (`src/components/sections/MacPaint.tsx`; registered in `src/data/apps.tsx`)
+  - 400×268 canvas, offscreen canvas for persistent pixels, Bresenham line for smooth strokes
+  - Flood-fill (bucket), rectangle and line with live preview via snapshot
+  - Toolbar: tool selector, ink/paper color toggle, 1/2/4px brush sizes, NEW button
+  - Status bar showing active tool, brush size, color, and cursor coordinates
+
+#### Phase 8: Upcoming Ideas
 - [ ] **Music Player** — Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`)
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
 
