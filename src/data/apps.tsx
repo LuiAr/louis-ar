@@ -7,6 +7,7 @@ import DinoGame from "@/components/sections/DinoGame";
 import SnakeGame from "@/components/sections/SnakeGame";
 import Terminal from "@/components/sections/Terminal";
 import PhotoViewer from "@/components/sections/PhotoViewer";
+import MacPaint from "@/components/sections/MacPaint";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -127,6 +128,20 @@ function PhotoIcon() {
       <rect x="9" y="23" width="3" height="2" fill="var(--color-cream)" />
       <rect x="14" y="23" width="3" height="2" fill="var(--color-cream)" />
       <rect x="19" y="23" width="3" height="2" fill="var(--color-cream)" />
+    </svg>
+  );
+}
+
+function MacPaintIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Canvas */}
+      <rect x="2" y="3" width="20" height="17" fill="var(--color-cream)" stroke="currentColor" strokeWidth="1.5" />
+      {/* Zigzag drawing on canvas */}
+      <polyline points="4,16 7,9 11,15 14,9 18,13" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      {/* Pencil */}
+      <rect x="22" y="3" width="3" height="12" fill="currentColor" transform="rotate(35, 22, 3)" />
+      <polygon points="20,22 23,22 21.5,26" fill="currentColor" />
     </svg>
   );
 }
@@ -277,5 +292,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: PhotoIcon,
     Content: PhotoViewer,
+  },
+  {
+    id: "macpaint",
+    title: "MacPaint",
+    menuLabel: "MacPaint",
+    dockLabel: "MacPaint",
+    defaultPosition: { x: 180, y: 65 },
+    defaultWidth: 560,
+    defaultHeight: 400,
+    initiallyOpen: false,
+    Icon: MacPaintIcon,
+    Content: MacPaint,
   },
 ];
