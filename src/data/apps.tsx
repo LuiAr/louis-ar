@@ -8,6 +8,7 @@ import SnakeGame from "@/components/sections/SnakeGame";
 import Terminal from "@/components/sections/Terminal";
 import PhotoViewer from "@/components/sections/PhotoViewer";
 import MacPaint from "@/components/sections/MacPaint";
+import MusicPlayer from "@/components/sections/MusicPlayer";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -142,6 +143,21 @@ function MacPaintIcon() {
       {/* Pencil */}
       <rect x="22" y="3" width="3" height="12" fill="currentColor" transform="rotate(35, 22, 3)" />
       <polygon points="20,22 23,22 21.5,26" fill="currentColor" />
+    </svg>
+  );
+}
+
+function MusicIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Vinyl record */}
+      <circle cx="14" cy="16" r="11" fill="var(--color-cream-dark)" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="14" cy="16" r="5" fill="currentColor" />
+      <circle cx="14" cy="16" r="2" fill="var(--color-cream)" />
+      {/* Music note above */}
+      <rect x="17" y="4" width="2" height="8" fill="currentColor" />
+      <rect x="11" y="4" width="8" height="2" fill="currentColor" />
+      <rect x="9" y="10" width="4" height="3" fill="currentColor" />
     </svg>
   );
 }
@@ -304,5 +320,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: MacPaintIcon,
     Content: MacPaint,
+  },
+  {
+    id: "music",
+    title: "Jukebox",
+    menuLabel: "Jukebox",
+    dockLabel: "Jukebox",
+    defaultPosition: { x: 350, y: 90 },
+    defaultWidth: 480,
+    defaultHeight: 420,
+    initiallyOpen: false,
+    Icon: MusicIcon,
+    Content: MusicPlayer,
   },
 ];
