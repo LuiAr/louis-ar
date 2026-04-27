@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 export type MenuAction =
@@ -114,10 +114,11 @@ function DropdownMenu({
   return (
     <div className="absolute top-full left-0 z-[200] min-w-[200px] bg-[var(--color-cream)] border-2 border-[var(--color-ink)] shadow-[3px_3px_0_var(--color-ink)] py-1">
       {items.map((item, i) => {
+        const itemKey = item.label ?? item.action ?? `sep-${i}`;
         if (item.separator) {
           return (
             <div
-              key={i}
+              key={itemKey}
               className="border-t border-[var(--color-ink-muted)] my-1 mx-2"
             />
           );
@@ -130,7 +131,7 @@ function DropdownMenu({
 
         return (
           <button
-            key={i}
+            key={itemKey}
             disabled={!!isDisabled}
             onClick={() => item.action && !isDisabled && onAction(item.action)}
             className={cn(
@@ -171,8 +172,8 @@ export default function MenuBar({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const menuBarRef = useRef<HTMLElement>(null);
 
-  const MENUS = buildMenus(windowMenuItems);
-  const ALL_MENU_IDS = ["apple", ...MENUS.map((m) => m.id)];
+  const MENUS = useMemo(() => buildMenus(windowMenuItems), [windowMenuItems]);
+  const ALL_MENU_IDS = useMemo(() => ["apple", ...MENUS.map((m) => m.id)], [MENUS]);
 
   function getItemsForMenu(menuId: string): MenuItem[] {
     if (menuId === "apple") return APPLE_ITEMS;
@@ -276,7 +277,6 @@ export default function MenuBar({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openMenu, focusedIndex, disabledActions, MENUS]);
 
   function handleAction(action: MenuAction) {

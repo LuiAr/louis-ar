@@ -39,13 +39,20 @@ interface GameData {
 }
 
 function randomFood(snake: Point[]): Point {
-  while (true) {
-    const p = {
-      x: Math.floor(Math.random() * COLS),
-      y: Math.floor(Math.random() * ROWS),
-    };
+  // Fast path: random attempts work well when the grid is sparse
+  for (let attempts = 0; attempts < 100; attempts++) {
+    const p = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
     if (!snake.some((s) => s.x === p.x && s.y === p.y)) return p;
   }
+  // Fallback: linear scan for a free cell (handles nearly-full grid)
+  const occupied = new Set(snake.map((s) => s.y * COLS + s.x));
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (!occupied.has(y * COLS + x)) return { x, y };
+    }
+  }
+  // Grid completely full — return snake head so game ends naturally
+  return snake[0];
 }
 
 function makeFreshGame(highScore: number): GameData {
