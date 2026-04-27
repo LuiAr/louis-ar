@@ -105,9 +105,19 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Toolbar: tool selector, ink/paper color toggle, 1/2/4px brush sizes, NEW button
   - Status bar showing active tool, brush size, color, and cursor coordinates
 
-#### Phase 8: Upcoming Ideas
-- [ ] **Music Player** — Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`)
+#### Phase 8: New Apps
+- [x] **Music Player** — Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`; registered in `src/data/apps.tsx` as `Jukebox`)
+  - 6 curated tracks with retro Mac-themed metadata
+  - 6 unique pixel-art SVG album artworks per track
+  - Play/Pause, Prev (restarts track if >3s elapsed), Next controls
+  - Click-to-seek progress bar with elapsed/total time display
+  - Tracklist with active-track highlight and live ♪ indicator
+  - Auto-advances to next track on completion, loops back to start
+
+#### Phase 9: Upcoming Ideas
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
+- [ ] **Clock** — Live analog + digital clock in a small window, classic Mac font, ticking second hand drawn with SVG rects (`src/components/sections/Clock.tsx`)
+- [ ] **Sticky Notes** — One or more draggable sticky note windows where the user can type freeform text, persisted to localStorage (`src/components/sections/StickyNote.tsx`)
 
 ---
 
