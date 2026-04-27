@@ -30,6 +30,22 @@ export const projects: Project[] = [
     featured: true,
   },
   {
+    id: "qr-generator",
+    title: "Easy QR — Free QR Generator",
+    shortDescription: "Instant QR codes — no account, no expiry",
+    longDescription:
+      "A simple, no-friction QR code generator. Paste a URL and get a scannable QR code instantly — no account required, no subscription, and the codes never expire.",
+    tags: ["web"],
+    status: "live",
+    year: 2025,
+    iconType: "application",
+    links: {
+      live: "https://easy-qr-fast.lovable.app",
+    },
+    techStack: ["Lovable"],
+    featured: false,
+  },
+  {
     id: "portfolio",
     title: "Portfolio Website",
     shortDescription: "This very site — Mac OS Classic themed portfolio",
