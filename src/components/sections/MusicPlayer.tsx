@@ -1,29 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ArtKey = "mac" | "chime" | "finder" | "pixel" | "beachball" | "piano";
 
-interface Track {
-  title: string;
-  artist: string;
-  album: string;
-  duration: number;
+interface Station {
+  name: string;
+  genre: string;
+  description: string;
+  url: string;
   art: ArtKey;
 }
 
-const TRACKS: Track[] = [
-  { title: "Happy Mac",        artist: "Apple Computer",     album: "System 7 Sounds", duration: 185, art: "mac"       },
-  { title: "Startup Chime",    artist: "Jim Reekes",         album: "Classic Mac OS",  duration: 212, art: "chime"     },
-  { title: "Finder Shuffle",   artist: "System Software",    album: "Macintosh Plus",  duration: 198, art: "finder"    },
-  { title: "Pixel Dance",      artist: "MacPaint Orchestra", album: "8-Bit Dreams",    duration: 224, art: "pixel"     },
-  { title: "Beach Ball Blues", artist: "Spinning Beachball", album: "Kernel Panic",    duration: 167, art: "beachball" },
-  { title: "Cmd-Q Lullaby",    artist: "Cmd+Q",              album: "Quit Gracefully", duration: 241, art: "piano"     },
+const STATIONS: Station[] = [
+  {
+    name: "Groove Salad",
+    genre: "Ambient · Downtempo",
+    description: "A nicely chilled plate of ambient beats and grooves.",
+    url: "https://ice1.somafm.com/groovesalad-256-mp3",
+    art: "pixel",
+  },
+  {
+    name: "Secret Agent",
+    genre: "Spy Jazz · Lounge",
+    description: "The soundtrack for your stylish, dangerous life.",
+    url: "https://ice1.somafm.com/secretagent-256-mp3",
+    art: "finder",
+  },
+  {
+    name: "Drone Zone",
+    genre: "Ambient · Space",
+    description: "Spaced out ambient, served best chilled.",
+    url: "https://ice1.somafm.com/dronezone-256-mp3",
+    art: "chime",
+  },
+  {
+    name: "Lush",
+    genre: "Trip-hop · Electronic",
+    description: "Sensuous female vocals over trip-hop beats.",
+    url: "https://ice1.somafm.com/lush-256-mp3",
+    art: "beachball",
+  },
+  {
+    name: "Synphaera",
+    genre: "Space Electronic",
+    description: "Electronic music for interstellar travel.",
+    url: "https://ice1.somafm.com/synphaera-256-mp3",
+    art: "piano",
+  },
+  {
+    name: "Illinois St. Lounge",
+    genre: "Cocktail · Easy Listening",
+    description: "Bachelor pad classics and music to make dinner to.",
+    url: "https://ice1.somafm.com/illstreet-256-mp3",
+    art: "mac",
+  },
 ];
-
-function fmt(s: number): string {
-  return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-}
 
 // ── Album art ─────────────────────────────────────────────────────────────────
 
@@ -144,47 +176,51 @@ const ARTS: Record<ArtKey, React.ComponentType> = {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function MusicPlayer() {
-  const [trackIdx, setTrackIdx] = useState(0);
+  const [stationIdx, setStationIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
-
-  const track = TRACKS[trackIdx];
-
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => setElapsed((e) => e + 0.1), 100);
-    return () => clearInterval(id);
-  }, [playing]);
+  const [buffering, setBuffering] = useState(false);
+  const [error, setError] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (elapsed >= track.duration) {
-      setTrackIdx((i) => (i + 1) % TRACKS.length);
-      setElapsed(0);
-    }
-  }, [elapsed, track.duration]);
+    const audio = new Audio();
+    audio.addEventListener("waiting", () => setBuffering(true));
+    audio.addEventListener("playing", () => { setBuffering(false); setError(false); });
+    audio.addEventListener("error", () => { setPlaying(false); setBuffering(false); setError(true); });
+    audioRef.current = audio;
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
+  }, []);
 
-  const handlePrev = () => {
-    if (elapsed > 3) {
-      setElapsed(0);
+  const startStation = (idx: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setError(false);
+    setBuffering(true);
+    setStationIdx(idx);
+    setPlaying(true);
+    audio.src = STATIONS[idx].url;
+    audio.play().catch(() => { setPlaying(false); setBuffering(false); setError(true); });
+  };
+
+  const handlePlayPause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+      setBuffering(false);
     } else {
-      setTrackIdx((i) => (i - 1 + TRACKS.length) % TRACKS.length);
-      setElapsed(0);
+      startStation(stationIdx);
     }
   };
 
-  const handleNext = () => {
-    setTrackIdx((i) => (i + 1) % TRACKS.length);
-    setElapsed(0);
-  };
+  const station = STATIONS[stationIdx];
+  const AlbumArt = ARTS[station.art];
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    setElapsed(ratio * track.duration);
-  };
-
-  const AlbumArt = ARTS[track.art];
-  const progress = Math.min(1, elapsed / track.duration);
+  const statusLabel = buffering ? "Buffering..." : playing ? "▶ On Air" : "|| Off Air";
 
   return (
     <div className="flex flex-col h-full select-none">
@@ -197,34 +233,65 @@ export default function MusicPlayer() {
 
           <div className="flex-1 min-w-0 flex flex-col justify-between">
             <div>
-              <div className="font-bold truncate">{track.title}</div>
-              <div className="text-[var(--color-ink-muted)] text-xs truncate">{track.artist}</div>
-              <div className="text-[var(--color-ink-muted)] text-xs truncate opacity-70">{track.album}</div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold truncate">{station.name}</span>
+                {playing && !buffering && (
+                  <span className="flex-shrink-0 text-xs border border-[var(--color-ink)] px-1 animate-pulse">
+                    LIVE
+                  </span>
+                )}
+              </div>
+              <div className="text-[var(--color-ink-muted)] text-xs truncate">{station.genre}</div>
+              <div className="text-[var(--color-ink-muted)] text-xs truncate opacity-70 mt-0.5">{station.description}</div>
+              {error && (
+                <div className="text-xs mt-1 opacity-70">Stream unavailable — try another station.</div>
+              )}
             </div>
 
             <div>
-              <div
-                className="w-full h-3 border-2 border-[var(--color-ink)] cursor-pointer bg-[var(--color-cream-dark)]"
-                onClick={handleProgressClick}
-              >
-                <div className="h-full bg-[var(--color-ink)]" style={{ width: `${progress * 100}%` }} />
+              {/* Live stream indicator bar */}
+              <div className="w-full h-3 border-2 border-[var(--color-ink)] bg-[var(--color-cream-dark)] overflow-hidden">
+                {playing && !buffering && (
+                  <div
+                    className="h-full bg-[var(--color-ink)]"
+                    style={{
+                      width: "30%",
+                      animation: "liveScroll 2s linear infinite",
+                    }}
+                  />
+                )}
+                {buffering && (
+                  <div className="h-full bg-[var(--color-ink-muted)] opacity-50 w-full" />
+                )}
               </div>
-              <div className="flex justify-between text-xs mt-0.5 text-[var(--color-ink-muted)]">
-                <span>{fmt(elapsed)}</span>
-                <span>{fmt(track.duration)}</span>
+              <style>{`
+                @keyframes liveScroll {
+                  0%   { transform: translateX(-100%); width: 40%; }
+                  100% { transform: translateX(350%);  width: 40%; }
+                }
+              `}</style>
+              <div className="text-xs mt-0.5 text-[var(--color-ink-muted)]">
+                {buffering ? "Connecting..." : playing ? "Live stream" : "Press Play to connect"}
               </div>
 
               <div className="flex gap-1.5 mt-2">
-                <button onClick={handlePrev} className="mac-button flex-1 py-1 text-xs">
+                <button
+                  onClick={() => startStation((stationIdx - 1 + STATIONS.length) % STATIONS.length)}
+                  className="mac-button flex-1 py-1 text-xs"
+                >
                   « Prev
                 </button>
                 <button
-                  onClick={() => setPlaying((p) => !p)}
+                  onClick={handlePlayPause}
                   className="mac-button flex-1 py-1 text-xs font-bold"
+                  disabled={buffering}
                 >
-                  {playing ? "Pause" : "Play"}
+                  {buffering ? "..." : playing ? "Pause" : "Play"}
                 </button>
-                <button onClick={handleNext} className="mac-button flex-1 py-1 text-xs">
+                <button
+                  onClick={() => startStation((stationIdx + 1) % STATIONS.length)}
+                  className="mac-button flex-1 py-1 text-xs"
+                >
                   Next »
                 </button>
               </div>
@@ -233,33 +300,30 @@ export default function MusicPlayer() {
         </div>
       </div>
 
-      {/* Tracklist */}
+      {/* Station list */}
       <div className="flex-1 min-h-0 overflow-auto">
-        {TRACKS.map((t, i) => (
+        {STATIONS.map((s, i) => (
           <div
             key={i}
-            className={`mac-list-row gap-2 ${i === trackIdx ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : ""}`}
-            onClick={() => {
-              setTrackIdx(i);
-              setElapsed(0);
-              setPlaying(true);
-            }}
+            className={`mac-list-row gap-2 ${i === stationIdx ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : ""}`}
+            onClick={() => startStation(i)}
           >
             <span className="w-4 text-xs opacity-60 flex-shrink-0">{i + 1}</span>
-            <span className="flex-1 truncate text-sm">{t.title}</span>
-            <span className="text-xs opacity-60 truncate hidden sm:inline" style={{ maxWidth: 100 }}>
-              {t.artist}
+            <span className="flex-1 truncate text-sm">{s.name}</span>
+            <span className="text-xs opacity-60 truncate hidden sm:inline" style={{ maxWidth: 110 }}>
+              {s.genre}
             </span>
-            <span className="text-xs flex-shrink-0">{fmt(t.duration)}</span>
-            <span className="w-3 text-xs flex-shrink-0">{i === trackIdx ? (playing ? "♪" : "·") : ""}</span>
+            <span className="w-3 text-xs flex-shrink-0">
+              {i === stationIdx ? (playing && !buffering ? "♪" : buffering ? "·" : "") : ""}
+            </span>
           </div>
         ))}
       </div>
 
       {/* Status bar */}
       <div className="flex-shrink-0 flex justify-between items-center px-3 py-1 border-t-2 border-[var(--color-ink)] bg-[var(--color-cream-dark)] text-xs text-[var(--color-ink-muted)]">
-        <span>{playing ? "▶ Now Playing" : "|| Paused"} · {trackIdx + 1}/{TRACKS.length}</span>
-        <span>Jukebox 1.0</span>
+        <span>{statusLabel} · Station {stationIdx + 1}/{STATIONS.length}</span>
+        <span>SomaFM</span>
       </div>
     </div>
   );
