@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 interface HistoryEntry {
+  id: number;
   cmd: string;
   output: string;
 }
@@ -125,6 +126,7 @@ export default function Terminal() {
   const [showCursor, setShowCursor] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const nextId = useRef(0);
 
   useEffect(() => {
     let lineIndex = 0;
@@ -132,7 +134,7 @@ export default function Terminal() {
       if (lineIndex < BOOT_TEXT.length) {
         setHistory((prev) => [
           ...prev,
-          { cmd: "", output: BOOT_TEXT[lineIndex] },
+          { id: nextId.current++, cmd: "", output: BOOT_TEXT[lineIndex] },
         ]);
         lineIndex++;
       } else {
@@ -184,11 +186,11 @@ export default function Terminal() {
       setHistory([]);
     } else if (output === "__HISTORY__") {
       const histOutput = history.map((h, i) => `  ${i + 1}  ${h.cmd}`).join("\n");
-      setHistory((prev) => [...prev, { cmd, output: histOutput || "(no commands yet)" }]);
+      setHistory((prev) => [...prev, { id: nextId.current++, cmd, output: histOutput || "(no commands yet)" }]);
     } else if (output === "__EXIT__") {
-      setHistory((prev) => [...prev, { cmd, output: "Use Cmd+W to close this window" }]);
+      setHistory((prev) => [...prev, { id: nextId.current++, cmd, output: "Use Cmd+W to close this window" }]);
     } else {
-      setHistory((prev) => [...prev, { cmd, output }]);
+      setHistory((prev) => [...prev, { id: nextId.current++, cmd, output }]);
     }
   };
 
@@ -209,8 +211,8 @@ export default function Terminal() {
       onClick={focusTerminal}
     >
       <div ref={terminalRef} className="flex-1 p-3 overflow-auto">
-        {history.map((entry, i) => (
-          <div key={i} className="whitespace-pre-wrap mb-1">
+        {history.map((entry) => (
+          <div key={entry.id} className="whitespace-pre-wrap mb-1">
             {entry.cmd && (
               <span>
                 <span className="text-[#7dff7d]">louisar@macbook</span>
@@ -232,6 +234,7 @@ export default function Terminal() {
             <input
               ref={inputRef}
               type="text"
+              aria-label="Terminal command input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
