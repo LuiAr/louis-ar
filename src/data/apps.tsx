@@ -10,6 +10,7 @@ import PhotoViewer from "@/components/sections/PhotoViewer";
 import MacPaint from "@/components/sections/MacPaint";
 import MusicPlayer from "@/components/sections/MusicPlayer";
 import Clock from "@/components/sections/Clock";
+import StickyNote from "@/components/sections/StickyNote";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -199,6 +200,23 @@ function TerminalIcon() {
   );
 }
 
+function StickyNoteIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Note body */}
+      <rect x="3" y="3" width="22" height="22" fill="#faf6e0" stroke="currentColor" strokeWidth="1.5" />
+      {/* Folded corner */}
+      <path d="M19 3 L25 9 L19 9 Z" fill="var(--color-cream-dark)" stroke="currentColor" strokeWidth="1" />
+      {/* Lines */}
+      <line x1="6" y1="13" x2="17" y2="13" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="6" y1="17" x2="17" y2="17" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="6" y1="21" x2="13" y2="21" stroke="currentColor" strokeWidth="1" />
+      {/* Pencil */}
+      <rect x="6" y="6" width="9" height="2" fill="currentColor" />
+    </svg>
+  );
+}
+
 // ── App registry ──────────────────────────────────────────────────────────────
 
 export interface AppConfig {
@@ -365,5 +383,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: ClockIcon,
     Content: Clock,
+  },
+  {
+    id: "stickynote",
+    title: "Sticky Notes",
+    menuLabel: "Sticky Notes",
+    dockLabel: "Sticky Notes",
+    defaultPosition: { x: 160, y: 100 },
+    defaultWidth: 340,
+    defaultHeight: 420,
+    initiallyOpen: false,
+    Icon: StickyNoteIcon,
+    Content: StickyNote,
   },
 ];
