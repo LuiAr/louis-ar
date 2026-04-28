@@ -9,6 +9,7 @@ import Terminal from "@/components/sections/Terminal";
 import PhotoViewer from "@/components/sections/PhotoViewer";
 import MacPaint from "@/components/sections/MacPaint";
 import MusicPlayer from "@/components/sections/MusicPlayer";
+import Clock from "@/components/sections/Clock";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -158,6 +159,26 @@ function MusicIcon() {
       <rect x="17" y="4" width="2" height="8" fill="currentColor" />
       <rect x="11" y="4" width="8" height="2" fill="currentColor" />
       <rect x="9" y="10" width="4" height="3" fill="currentColor" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Clock face */}
+      <rect x="2" y="2" width="24" height="24" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
+      {/* 4 hour tick marks */}
+      <rect x="13" y="3" width="2" height="3" fill="currentColor" />
+      <rect x="13" y="22" width="2" height="3" fill="currentColor" />
+      <rect x="3" y="13" width="3" height="2" fill="currentColor" />
+      <rect x="22" y="13" width="3" height="2" fill="currentColor" />
+      {/* Hour hand pointing ~10 */}
+      <rect x="13" y="8" width="2" height="7" fill="currentColor" transform="rotate(-60 14 14)" />
+      {/* Minute hand pointing ~2 */}
+      <rect x="13" y="7" width="2" height="8" fill="currentColor" transform="rotate(60 14 14)" />
+      {/* Center dot */}
+      <rect x="13" y="13" width="2" height="2" fill="currentColor" />
     </svg>
   );
 }
@@ -332,5 +353,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: MusicIcon,
     Content: MusicPlayer,
+  },
+  {
+    id: "clock",
+    title: "Clock",
+    menuLabel: "Clock",
+    dockLabel: "Clock",
+    defaultPosition: { x: 520, y: 110 },
+    defaultWidth: 300,
+    defaultHeight: 400,
+    initiallyOpen: false,
+    Icon: ClockIcon,
+    Content: Clock,
   },
 ];
