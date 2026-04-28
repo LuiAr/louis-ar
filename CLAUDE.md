@@ -121,9 +121,17 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Digital HH:MM:SS display with AM/PM, day-of-week, and full date below
   - Second hand ticks every 1 s via setInterval, all time via useState
 
-#### Phase 10: Upcoming Ideas
+#### Phase 10: New Apps
+- [x] **Sticky Notes** — Multi-note text editor with tabs, title editing, word/char count, persisted to localStorage (`src/components/sections/StickyNote.tsx`; registered in `src/data/apps.tsx`)
+  - Up to 6 notes with tab navigation, double-click-to-rename titles
+  - Warm yellow (`#faf6e0`) background to feel like a real sticky note
+  - New/Delete toolbar, word count + char count status bar
+  - Hydration-safe: loads from localStorage on mount, auto-saves on every keystroke
+
+#### Phase 11: Upcoming Ideas
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
-- [ ] **Sticky Notes** — One or more draggable sticky note windows where the user can type freeform text, persisted to localStorage (`src/components/sections/StickyNote.tsx`)
+- [ ] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`)
+- [ ] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`)
 
 ---
 
