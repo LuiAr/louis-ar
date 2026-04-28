@@ -114,9 +114,15 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Tracklist with active-track highlight and live ♪ indicator
   - Auto-advances to next track on completion, loops back to start
 
-#### Phase 9: Upcoming Ideas
+#### Phase 9: New Apps
+- [x] **Clock** — Live analog + digital clock in a small window, classic Mac font, ticking second hand drawn with SVG rects (`src/components/sections/Clock.tsx`; registered in `src/data/apps.tsx`)
+  - 200×200 SVG analog face with hour/minute tick marks, three rotated-rect hands
+  - Hard-shadow frame, cream/ink color scheme matching classic Mac aesthetic
+  - Digital HH:MM:SS display with AM/PM, day-of-week, and full date below
+  - Second hand ticks every 1 s via setInterval, all time via useState
+
+#### Phase 10: Upcoming Ideas
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
-- [ ] **Clock** — Live analog + digital clock in a small window, classic Mac font, ticking second hand drawn with SVG rects (`src/components/sections/Clock.tsx`)
 - [ ] **Sticky Notes** — One or more draggable sticky note windows where the user can type freeform text, persisted to localStorage (`src/components/sections/StickyNote.tsx`)
 
 ---
