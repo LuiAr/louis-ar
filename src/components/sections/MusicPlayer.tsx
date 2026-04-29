@@ -203,12 +203,18 @@ export default function MusicPlayer() {
             </div>
 
             <div>
-              <div
+              <button
                 className="w-full h-3 border-2 border-[var(--color-ink)] cursor-pointer bg-[var(--color-cream-dark)]"
                 onClick={handleProgressClick}
+                aria-label={`Seek — ${fmt(elapsed)} of ${fmt(track.duration)}`}
+                aria-valuenow={Math.round(elapsed)}
+                aria-valuemin={0}
+                aria-valuemax={track.duration}
+                role="slider"
+                style={{ padding: 0, display: "block" }}
               >
                 <div className="h-full bg-[var(--color-ink)]" style={{ width: `${progress * 100}%` }} />
-              </div>
+              </button>
               <div className="flex justify-between text-xs mt-0.5 text-[var(--color-ink-muted)]">
                 <span>{fmt(elapsed)}</span>
                 <span>{fmt(track.duration)}</span>

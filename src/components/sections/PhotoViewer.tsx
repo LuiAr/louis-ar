@@ -330,18 +330,22 @@ export default function PhotoViewer() {
         {selected && selectedPhoto ? (
           /* ── Single photo view ── */
           <div className="flex flex-col items-center justify-center h-full p-4 gap-3">
-            <div
+            <button
               className="border-2 border-[var(--color-ink)] overflow-hidden cursor-pointer"
               style={{
                 boxShadow: "3px 3px 0 var(--color-ink)",
                 width: 260,
                 height: 260,
+                padding: 0,
+                display: "block",
+                background: "none",
               }}
               onClick={() => setSelected(null)}
+              aria-label="Return to photo grid"
               title="Click to return to grid"
             >
               {selectedPhoto.render()}
-            </div>
+            </button>
             <div className="text-center">
               <p className="font-mono text-sm font-bold text-[var(--color-ink)]">
                 {selectedPhoto.title}

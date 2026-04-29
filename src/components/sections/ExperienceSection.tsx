@@ -21,6 +21,10 @@ function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
       <div
         className={`mac-list-row gap-3 cursor-pointer select-none ${isCurrent ? "mac-list-row-active font-bold" : ""}`}
         onClick={() => setOpen((o) => !o)}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((o) => !o); } }}
       >
         <span
           className="text-[10px] transition-transform duration-150"

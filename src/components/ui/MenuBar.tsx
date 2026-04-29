@@ -277,7 +277,7 @@ export default function MenuBar({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [openMenu, focusedIndex, disabledActions, MENUS]);
+  }, [openMenu, focusedIndex, disabledActions, MENUS, ALL_MENU_IDS]);
 
   function handleAction(action: MenuAction) {
     setOpenMenu(null);

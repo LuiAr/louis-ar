@@ -128,7 +128,16 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - New/Delete toolbar, word count + char count status bar
   - Hydration-safe: loads from localStorage on mount, auto-saves on every keystroke
 
-#### Phase 11: Upcoming Ideas
+#### Phase 11: Maintenance pass (2026-04-29)
+- [x] **Code quality & accessibility audit** — 6 files fixed:
+  - `MenuBar.tsx`: `ALL_MENU_IDS` added to keyboard nav `useEffect` deps
+  - `MacPaint.tsx`: image `onload` guarded with `cancelled` flag to prevent post-unmount draw
+  - `MusicPlayer.tsx`: progress bar `div` → `<button role="slider">` with `aria-valuenow/min/max`
+  - `PhotoViewer.tsx`: single-photo back-click `div` → `<button aria-label>`
+  - `StickyNote.tsx`: title rename span gets `role="button"`, `tabIndex`, `Enter`/`Space` handler
+  - `ExperienceSection.tsx`: expandable rows get `role="button"`, `tabIndex`, `aria-expanded`, keyboard handler
+
+#### Phase 12: Upcoming Ideas
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
 - [ ] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`)
 - [ ] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`)
