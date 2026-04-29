@@ -276,7 +276,12 @@ export default function StickyNote() {
         ) : (
           <span
             onDoubleClick={startEditTitle}
-            title="Double-click to rename"
+            onClick={startEditTitle}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); startEditTitle(); } }}
+            aria-label={`Note title: ${active.title}. Click or press Enter to rename.`}
+            title="Click to rename"
             style={{
               fontSize: "12px",
               color: "var(--color-ink)",

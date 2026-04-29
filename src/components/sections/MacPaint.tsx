@@ -154,15 +154,17 @@ export default function MacPaint() {
     offRef.current = o;
     const ox = o.getContext("2d")!;
     const saved = localStorage.getItem("macpaint-v1");
+    let cancelled = false;
     if (saved) {
       const img = new Image();
-      img.onload = () => { ox.drawImage(img, 0, 0); blit(); };
+      img.onload = () => { if (!cancelled) { ox.drawImage(img, 0, 0); blit(); } };
       img.src = saved;
     } else {
       ox.fillStyle = PAPER;
       ox.fillRect(0, 0, CW, CH);
       blit();
     }
+    return () => { cancelled = true; };
   }, [blit]);
 
   const getXY = (e: React.PointerEvent): Pt => {
