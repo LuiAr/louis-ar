@@ -142,6 +142,61 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
 - [ ] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`)
 - [ ] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`)
 
+#### Phase 13: Mobile Version (Option A — Mobile-native layout)
+
+Goal: render a completely different, touch-friendly UI when the user opens the site on a phone, while sharing all the same content data and design tokens.
+
+**Detection strategy**
+- [ ] Add `src/hooks/useIsMobile.ts` — a `"use client"` hook that returns `true` when `window.innerWidth < 768`. Uses `useState` + `useEffect` with a `resize` listener. Returns `false` on SSR (so the desktop shell is the SSR default; mobile swaps in on hydration).
+- [ ] In `src/app/page.tsx`, dynamically import a `<MobileApp />` wrapper (same `ssr: false` pattern as `DynamicHero`) and swap between `<DesktopApp />` and `<MobileApp />` based on the hook.
+
+**`src/components/mobile/MobileApp.tsx`** — root shell (`"use client"`)
+- [ ] Full-height scrollable page, `bg-[var(--color-cream)]`, `font-[var(--font-space-mono)]`
+- [ ] Sticky top bar: site title left, a hamburger/menu icon right (opens a slide-down nav)
+- [ ] Slide-down nav lists all app names from the `APPS` registry; tapping one scrolls to that section
+- [ ] No dock, no menubar, no dragging
+
+**`src/components/mobile/MobileSection.tsx`** — reusable card wrapper
+- [ ] Cream background, `border-2 border-[var(--color-ink)]`, hard shadow `3px 3px 0 var(--color-ink)`
+- [ ] Title bar strip at top (same stripe pattern as `MacWindow`), app name left-aligned
+- [ ] Content slot below — each section renders its own simplified content
+
+**Per-section mobile views** (each a thin adapter over existing data, no new data files needed)
+- [ ] `src/components/mobile/sections/MobileAbout.tsx` — profile image + bio text, skills as inline tags
+- [ ] `src/components/mobile/sections/MobileProjects.tsx` — vertical list of project cards from `projects.ts`; each card: title, tech stack pills, description, links
+- [ ] `src/components/mobile/sections/MobileExperience.tsx` — accordion list from `experience.ts`; tap to expand role details
+- [ ] `src/components/mobile/sections/MobileContact.tsx` — stacked link buttons (GitHub, email, LinkedIn) with full-invert hover
+- [ ] `src/components/mobile/sections/MobileTerminal.tsx` — read-only scrollable output of a pre-baked "boot log" showing fun facts; no interactive input (keeps the terminal easter-egg vibe without a keyboard)
+- [ ] `src/components/mobile/sections/MobileSnake.tsx` — fully playable Snake with on-screen D-pad (four arrow buttons arranged in a cross); reuses the same game logic, swaps keyboard events for button taps
+
+**Animations**
+- [ ] Reuse `FadeInWhenVisible` for section entrance animations
+- [ ] All animations respect `usePrefersReducedMotion` (already exists)
+
+**Rules that still apply on mobile**
+- No border-radius
+- Hard drop shadows only
+- Hover = full invert (becomes tap highlight on mobile via `active:` variant)
+- Space Mono font, cream/ink palette
+
+**Files to create**
+```
+src/hooks/useIsMobile.ts
+src/components/mobile/MobileApp.tsx
+src/components/mobile/MobileSection.tsx
+src/components/mobile/sections/MobileAbout.tsx
+src/components/mobile/sections/MobileProjects.tsx
+src/components/mobile/sections/MobileExperience.tsx
+src/components/mobile/sections/MobileContact.tsx
+src/components/mobile/sections/MobileTerminal.tsx
+src/components/mobile/sections/MobileSnake.tsx
+```
+
+**Files to modify**
+```
+src/app/page.tsx  — add useIsMobile swap + dynamic import of MobileApp
+```
+
 ---
 
 ## Session End Routine
