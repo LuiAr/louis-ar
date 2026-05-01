@@ -137,6 +137,12 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `StickyNote.tsx`: title rename span gets `role="button"`, `tabIndex`, `Enter`/`Space` handler
   - `ExperienceSection.tsx`: expandable rows get `role="button"`, `tabIndex`, `aria-expanded`, keyboard handler
 
+#### Phase 11b: Maintenance pass (2026-05-01)
+- [x] **Bug fixes & code hardening** — 3 files fixed:
+  - `SnakeGame.tsx`: global arrow-key handler now skips `e.preventDefault()` when an `INPUT` or `TEXTAREA` is focused — was silently breaking cursor movement in StickyNote and Terminal while the snake window was open
+  - `MacPaint.tsx`: replaced `getContext("2d")!` non-null assertion in `blit` callback with an explicit null check
+  - `Desktop.tsx`: added explicit `typeof window === "undefined"` guard to `loadLayout`; added explanatory comment to `eslint-disable-next-line` suppression on the keyboard shortcut effect
+
 #### Phase 12: Upcoming Ideas
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
 - [ ] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`)
@@ -208,3 +214,8 @@ At the end of every task, Claude must always:
 
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
+
+## Top 3 Ideas (2026-05-01)
+1. **Calculator** (`src/components/sections/Calculator.tsx`) — A 4-function retro calculator fills a small window slot perfectly, is self-contained, and exercises keyboard input in a new pattern not yet explored by any existing app.
+2. **System Preferences** (`src/components/sections/SystemPreferences.tsx`) — Lets the user actually customise the experience (toggle checker grid density, enable Web Audio API beep sounds), making the site feel like a living OS rather than a static showcase.
+3. **Mobile layout** (`src/components/mobile/`) — The most impactful reach improvement: Phase 13 is fully spec'd in CLAUDE.md and would unlock the entire portfolio for phone visitors who currently see a desktop-only experience.
