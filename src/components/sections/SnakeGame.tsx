@@ -297,6 +297,9 @@ export default function SnakeGame() {
       const isArrow = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code);
 
       if (!isArrow) return;
+      // Don't steal arrow keys from text inputs — they need them for cursor movement
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
       e.preventDefault();
 
       if (g.state === "idle") {

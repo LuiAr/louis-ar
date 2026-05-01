@@ -143,7 +143,9 @@ export default function MacPaint() {
 
   const blit = useCallback(() => {
     const c = canvasRef.current, o = offRef.current;
-    if (c && o) c.getContext("2d")!.drawImage(o, 0, 0);
+    if (!c || !o) return;
+    const ctx = c.getContext("2d");
+    if (ctx) ctx.drawImage(o, 0, 0);
   }, []);
 
   useEffect(() => {
