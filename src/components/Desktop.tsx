@@ -19,6 +19,7 @@ interface StoredLayout {
 }
 
 function loadLayout(): Record<string, StoredLayout> {
+  if (typeof window === "undefined") return {};
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
   } catch {
@@ -264,6 +265,9 @@ export default function Desktop() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // closeWindow/toggleMinimize/focusWindow/handleQuit are recreated each render but all
+    // depend only on `states` and `activeId`, which ARE in the deps array — adding the
+    // functions themselves would be redundant and noisy.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId, states]);
 
