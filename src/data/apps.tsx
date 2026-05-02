@@ -11,6 +11,7 @@ import MacPaint from "@/components/sections/MacPaint";
 import MusicPlayer from "@/components/sections/MusicPlayer";
 import Clock from "@/components/sections/Clock";
 import StickyNote from "@/components/sections/StickyNote";
+import Calculator from "@/components/sections/Calculator";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -217,6 +218,27 @@ function StickyNoteIcon() {
   );
 }
 
+function CalcIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Calculator body */}
+      <rect x="4" y="2" width="20" height="24" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
+      {/* Display */}
+      <rect x="6" y="4" width="16" height="6" fill="currentColor" />
+      <rect x="7" y="5" width="12" height="4" fill="var(--color-cream-dark)" />
+      {/* Button rows */}
+      <rect x="6"  y="12" width="4" height="3" fill="currentColor" />
+      <rect x="12" y="12" width="4" height="3" fill="currentColor" />
+      <rect x="18" y="12" width="4" height="3" fill="currentColor" />
+      <rect x="6"  y="17" width="4" height="3" fill="currentColor" />
+      <rect x="12" y="17" width="4" height="3" fill="currentColor" />
+      <rect x="18" y="17" width="4" height="3" fill="currentColor" />
+      <rect x="6"  y="22" width="10" height="3" fill="currentColor" />
+      <rect x="18" y="22" width="4" height="3" fill="currentColor" />
+    </svg>
+  );
+}
+
 // ── App registry ──────────────────────────────────────────────────────────────
 
 export interface AppConfig {
@@ -395,5 +417,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: StickyNoteIcon,
     Content: StickyNote,
+  },
+  {
+    id: "calculator",
+    title: "Calculator",
+    menuLabel: "Calculator",
+    dockLabel: "Calculator",
+    defaultPosition: { x: 380, y: 120 },
+    defaultWidth: 280,
+    defaultHeight: 380,
+    initiallyOpen: false,
+    Icon: CalcIcon,
+    Content: Calculator,
   },
 ];

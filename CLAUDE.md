@@ -143,9 +143,16 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `MacPaint.tsx`: replaced `getContext("2d")!` non-null assertion in `blit` callback with an explicit null check
   - `Desktop.tsx`: added explicit `typeof window === "undefined"` guard to `loadLayout`; added explanatory comment to `eslint-disable-next-line` suppression on the keyboard shortcut effect
 
-#### Phase 12: Upcoming Ideas
+#### Phase 12: New Apps (2026-05-02)
+- [x] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`; registered in `src/data/apps.tsx`)
+  - `useReducer`-based state machine: digit input, operator chaining, equals, C/±/% functions
+  - Keyboard support: 0–9, + − * /, Enter/=, Esc/C, Backspace, %
+  - Pending-op indicator on display (shows stored value + operator while entering second operand)
+  - Active operator button label shown in brackets `[÷]` when that op is pending
+  - Hard-shadow retro button grid; op buttons use ink/cream invert; fn buttons use cream-dark
+
+#### Phase 12 Remaining:
 - [ ] **System Preferences** — Fake settings app: switch desktop checker pattern, toggle UI sounds (classic Mac beep via Web Audio API), pick an accent dither pattern for windows (`src/components/sections/SystemPreferences.tsx`)
-- [ ] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`)
 - [ ] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`)
 
 #### Phase 13: Mobile Version (Option A — Mobile-native layout)
@@ -215,7 +222,7 @@ At the end of every task, Claude must always:
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-01)
-1. **Calculator** (`src/components/sections/Calculator.tsx`) — A 4-function retro calculator fills a small window slot perfectly, is self-contained, and exercises keyboard input in a new pattern not yet explored by any existing app.
-2. **System Preferences** (`src/components/sections/SystemPreferences.tsx`) — Lets the user actually customise the experience (toggle checker grid density, enable Web Audio API beep sounds), making the site feel like a living OS rather than a static showcase.
-3. **Mobile layout** (`src/components/mobile/`) — The most impactful reach improvement: Phase 13 is fully spec'd in CLAUDE.md and would unlock the entire portfolio for phone visitors who currently see a desktop-only experience.
+## Top 3 Ideas (2026-05-02)
+1. **System Preferences** (`src/components/sections/SystemPreferences.tsx`) — Lets the user actually customise the experience (toggle checker grid density, enable Web Audio API beep on click), making the site feel like a living OS rather than a static showcase.
+2. **Mobile layout** (`src/components/mobile/`) — The most impactful reach improvement: Phase 13 is fully spec'd in CLAUDE.md and would unlock the entire portfolio for phone visitors who currently see a desktop-only experience.
+3. **Finder** (`src/components/sections/Finder.tsx`) — A file-browser window rendering the repo file tree as a classic Mac list view with indented disclosure triangles; purely static data so zero runtime cost, but gives the portfolio a strong "OS authenticity" boost.
