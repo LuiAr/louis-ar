@@ -143,6 +143,12 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `MacPaint.tsx`: replaced `getContext("2d")!` non-null assertion in `blit` callback with an explicit null check
   - `Desktop.tsx`: added explicit `typeof window === "undefined"` guard to `loadLayout`; added explanatory comment to `eslint-disable-next-line` suppression on the keyboard shortcut effect
 
+#### Phase 11c: Maintenance pass (2026-05-03)
+- [x] **Timer leak, null-assertion cleanup, modal a11y** — 3 files fixed:
+  - `useBootSequence.ts`: `revealTimer` was scoped inside the `bootTimer` callback making `clearTimeout(revealTimer)` unreachable on unmount; moved declaration to outer scope so cleanup clears both timers
+  - `MacPaint.tsx`: replaced remaining four `getContext("2d")!` non-null assertions and one `canvasRef.current!` with explicit null guards (`if (!ox) return` / `if (!c) return { x:0, y:0 }`)
+  - `Desktop.tsx`: `AboutModal` now installs a `keydown` listener on mount that calls `onClose()` on Escape — dialog was previously keyboard-inaccessible
+
 #### Phase 12: New Apps (2026-05-02)
 - [x] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`; registered in `src/data/apps.tsx`)
   - `useReducer`-based state machine: digit input, operator chaining, equals, C/±/% functions
@@ -222,7 +228,7 @@ At the end of every task, Claude must always:
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-02)
+## Top 3 Ideas (2026-05-03)
 1. **System Preferences** (`src/components/sections/SystemPreferences.tsx`) — Lets the user actually customise the experience (toggle checker grid density, enable Web Audio API beep on click), making the site feel like a living OS rather than a static showcase.
 2. **Mobile layout** (`src/components/mobile/`) — The most impactful reach improvement: Phase 13 is fully spec'd in CLAUDE.md and would unlock the entire portfolio for phone visitors who currently see a desktop-only experience.
 3. **Finder** (`src/components/sections/Finder.tsx`) — A file-browser window rendering the repo file tree as a classic Mac list view with indented disclosure triangles; purely static data so zero runtime cost, but gives the portfolio a strong "OS authenticity" boost.
