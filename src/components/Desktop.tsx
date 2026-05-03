@@ -74,6 +74,12 @@ function AboutMacSVG() {
 }
 
 function AboutModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
     <div
       className="fixed inset-0 z-[500] flex items-center justify-center"

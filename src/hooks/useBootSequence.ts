@@ -15,15 +15,16 @@ export function useBootSequence(): BootStage {
       return;
     }
 
+    let revealTimer: ReturnType<typeof setTimeout>;
     const bootTimer = setTimeout(() => {
       setStage("revealing");
-      const revealTimer = setTimeout(() => {
-        setStage("done");
-      }, 600);
-      return () => clearTimeout(revealTimer);
+      revealTimer = setTimeout(() => setStage("done"), 600);
     }, 2800);
 
-    return () => clearTimeout(bootTimer);
+    return () => {
+      clearTimeout(bootTimer);
+      clearTimeout(revealTimer);
+    };
   }, [prefersReducedMotion]);
 
   return stage;

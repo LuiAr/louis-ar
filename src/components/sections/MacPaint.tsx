@@ -154,7 +154,8 @@ export default function MacPaint() {
     const o = document.createElement("canvas");
     o.width = CW; o.height = CH;
     offRef.current = o;
-    const ox = o.getContext("2d")!;
+    const ox = o.getContext("2d");
+    if (!ox) return;
     const saved = localStorage.getItem("macpaint-v1");
     let cancelled = false;
     if (saved) {
@@ -170,7 +171,8 @@ export default function MacPaint() {
   }, [blit]);
 
   const getXY = (e: React.PointerEvent): Pt => {
-    const c = canvasRef.current!;
+    const c = canvasRef.current;
+    if (!c) return { x: 0, y: 0 };
     const r = c.getBoundingClientRect();
     return {
       x: Math.max(0, Math.min(CW - 1, Math.round((e.clientX - r.left) * CW / r.width))),
@@ -193,7 +195,8 @@ export default function MacPaint() {
 
     const o = offRef.current;
     if (!o) return;
-    const ox = o.getContext("2d")!;
+    const ox = o.getContext("2d");
+    if (!ox) return;
     const fg = darkRef.current ? INK : PAPER;
     const sz = sizeRef.current;
 
@@ -230,7 +233,8 @@ export default function MacPaint() {
 
     const o = offRef.current;
     if (!o) return;
-    const ox = o.getContext("2d")!;
+    const ox = o.getContext("2d");
+    if (!ox) return;
     const fg = darkRef.current ? INK : PAPER;
     const sz = sizeRef.current;
 
@@ -287,7 +291,8 @@ export default function MacPaint() {
   const handleClear = () => {
     const o = offRef.current;
     if (!o) return;
-    const ox = o.getContext("2d")!;
+    const ox = o.getContext("2d");
+    if (!ox) return;
     ox.fillStyle = PAPER;
     ox.fillRect(0, 0, CW, CH);
     blit();
