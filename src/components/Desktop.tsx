@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import DraggableWindow from "@/components/ui/DraggableWindow";
 import MenuBar, { type MenuAction, type MenuItem } from "@/components/ui/MenuBar";
 import { APPS } from "@/data/apps";
+import { usePrefs } from "@/hooks/usePrefs";
 
 // ── localStorage persistence ──────────────────────────────────────────────────
 
@@ -145,12 +146,39 @@ function AboutModal({ onClose }: { onClose: () => void }) {
 
 export default function Desktop() {
   const desktopRef = useRef<HTMLDivElement>(null);
+  const prefs = usePrefs();
   const [states, setStates] = useState<Record<string, WindowState>>(buildInitialState);
   const [activeId, setActiveId] = useState<string>(
     APPS.find((a) => a.initiallyOpen)?.id ?? APPS[0].id
   );
   const [showAbout, setShowAbout] = useState(false);
   const topZ = useRef(APPS.length);
+
+  // Click sounds — plays a retro Mac beep when prefs.sounds is enabled
+  useEffect(() => {
+    if (!prefs.sounds) return;
+    function playClick() {
+      try {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "square";
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.06);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.1);
+        ctx.close();
+      } catch {
+        // Web Audio API may be unavailable
+      }
+    }
+    window.addEventListener("click", playClick);
+    return () => window.removeEventListener("click", playClick);
+  }, [prefs.sounds]);
 
   // Loaded once for defaultPosition/defaultWidth/defaultHeight on first mount
   const [storedLayout] = useState<Record<string, StoredLayout>>(loadLayout);
@@ -346,7 +374,12 @@ export default function Desktop() {
       {/* Desktop area */}
       <div
         ref={desktopRef}
-        className="flex-1 relative overflow-hidden mac-desktop-bg"
+        className={cn("flex-1 relative overflow-hidden", {
+          "mac-desktop-bg":       prefs.desktopPattern === "crosshatch",
+          "mac-desktop-bg-dense": prefs.desktopPattern === "dense",
+          "mac-desktop-bg-dots":  prefs.desktopPattern === "dots",
+          "mac-desktop-bg-solid": prefs.desktopPattern === "solid",
+        })}
       >
         <AnimatePresence>
           {APPS.map((app) => {

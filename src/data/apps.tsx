@@ -12,6 +12,7 @@ import MusicPlayer from "@/components/sections/MusicPlayer";
 import Clock from "@/components/sections/Clock";
 import StickyNote from "@/components/sections/StickyNote";
 import Calculator from "@/components/sections/Calculator";
+import SystemPreferences from "@/components/sections/SystemPreferences";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -214,6 +215,26 @@ function StickyNoteIcon() {
       <line x1="6" y1="21" x2="13" y2="21" stroke="currentColor" strokeWidth="1" />
       {/* Pencil */}
       <rect x="6" y="6" width="9" height="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function SystemPrefsIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Gear body */}
+      <rect x="11" y="2"  width="6" height="4" fill="currentColor" />
+      <rect x="11" y="22" width="6" height="4" fill="currentColor" />
+      <rect x="2"  y="11" width="4" height="6" fill="currentColor" />
+      <rect x="22" y="11" width="4" height="6" fill="currentColor" />
+      <rect x="4"  y="4"  width="4" height="4" fill="currentColor" />
+      <rect x="20" y="4"  width="4" height="4" fill="currentColor" />
+      <rect x="4"  y="20" width="4" height="4" fill="currentColor" />
+      <rect x="20" y="20" width="4" height="4" fill="currentColor" />
+      {/* Center circle (ring) */}
+      <rect x="8"  y="8"  width="12" height="12" fill="currentColor" />
+      <rect x="10" y="10" width="8"  height="8"  fill="var(--color-cream)" />
+      <rect x="12" y="12" width="4"  height="4"  fill="currentColor" />
     </svg>
   );
 }
@@ -429,5 +450,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: CalcIcon,
     Content: Calculator,
+  },
+  {
+    id: "systemprefs",
+    title: "System Preferences",
+    menuLabel: "System Preferences",
+    dockLabel: "Prefs",
+    defaultPosition: { x: 240, y: 100 },
+    defaultWidth: 400,
+    defaultHeight: 460,
+    initiallyOpen: false,
+    Icon: SystemPrefsIcon,
+    Content: SystemPreferences,
   },
 ];
