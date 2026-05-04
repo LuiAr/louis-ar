@@ -57,7 +57,7 @@ export const projects: Project[] = [
     iconType: "application",
     links: {
       github: "https://github.com/LuiAr/louis-ar",
-      live: "https://luiar.github.io/louis-ar",
+      live: "https://louisarbey.eu",
     },
     techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Motion"],
     featured: true,
