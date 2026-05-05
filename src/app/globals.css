@@ -30,6 +30,13 @@
     overflow: hidden;
   }
 
+  /* Mobile layout: MobileApp adds this class to <html> on mount */
+  html.mobile-scroll,
+  html.mobile-scroll body {
+    overflow: auto;
+    height: auto;
+  }
+
   body {
     background-color: var(--color-cream);
     color: var(--color-ink);
