@@ -282,6 +282,9 @@ export default function DinoGame() {
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
+        // Don't steal Space/ArrowUp from text inputs — they need them for cursor/typing
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
         e.preventDefault();
         handleAction();
       }

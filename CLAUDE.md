@@ -164,6 +164,12 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `MusicPlayer.tsx`: fixed pre-existing `MouseEvent<HTMLDivElement>` → `MouseEvent<HTMLButtonElement>` type error on progress-bar handler
 - [ ] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`)
 
+#### Phase 13b: Maintenance pass (2026-05-05)
+- [x] **Bug fixes & accessibility hardening** — 3 files fixed:
+  - `DinoGame.tsx`: global Space/ArrowUp handler now skips `e.preventDefault()` when an `INPUT` or `TEXTAREA` is focused — same Phase 11b fix applied to SnakeGame, DinoGame had the identical oversight and was silently breaking cursor movement/typing in StickyNote and Terminal while the DinoGame window was open
+  - `MusicPlayer.tsx`: tracklist items converted from `<div onClick>` to `<button>` elements with `aria-label` and `aria-pressed` — were not keyboard-navigable or announced to screen readers
+  - `Desktop.tsx`: added optional-chaining null guard (`states[a.id]?.isOpen`) in both `closeWindow` and `toggleMinimize` — prevents a crash if APPS ever contains an entry whose ID is absent from the live state (possible after adding a new app while the user has stale localStorage data)
+
 #### Phase 13: Mobile Version (Option A — Mobile-native layout)
 
 Goal: render a completely different, touch-friendly UI when the user opens the site on a phone, while sharing all the same content data and design tokens.
@@ -231,7 +237,7 @@ At the end of every task, Claude must always:
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-04)
+## Top 3 Ideas (2026-05-05)
 1. **Mobile layout** (`src/components/mobile/`) — The most impactful reach improvement: Phase 13 is fully spec'd in CLAUDE.md and would unlock the entire portfolio for phone visitors who currently see a desktop-only experience.
 2. **Finder** (`src/components/sections/Finder.tsx`) — A file-browser window rendering the repo file tree as a classic Mac list view with indented disclosure triangles; purely static data so zero runtime cost, but gives the portfolio a strong "OS authenticity" boost.
 3. **System-wide Theming in System Preferences** — Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps the CSS custom-property values at runtime; all components automatically recolor with zero per-component changes.
