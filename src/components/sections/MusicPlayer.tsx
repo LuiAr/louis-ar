@@ -242,14 +242,16 @@ export default function MusicPlayer() {
       {/* Tracklist */}
       <div className="flex-1 min-h-0 overflow-auto">
         {TRACKS.map((t, i) => (
-          <div
+          <button
             key={i}
-            className={`mac-list-row gap-2 ${i === trackIdx ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : ""}`}
+            className={`mac-list-row gap-2 w-full text-left ${i === trackIdx ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : ""}`}
             onClick={() => {
               setTrackIdx(i);
               setElapsed(0);
               setPlaying(true);
             }}
+            aria-label={`Play ${t.title} by ${t.artist}`}
+            aria-pressed={i === trackIdx}
           >
             <span className="w-4 text-xs opacity-60 flex-shrink-0">{i + 1}</span>
             <span className="flex-1 truncate text-sm">{t.title}</span>
@@ -258,7 +260,7 @@ export default function MusicPlayer() {
             </span>
             <span className="text-xs flex-shrink-0">{fmt(t.duration)}</span>
             <span className="w-3 text-xs flex-shrink-0">{i === trackIdx ? (playing ? "♪" : "·") : ""}</span>
-          </div>
+          </button>
         ))}
       </div>
 

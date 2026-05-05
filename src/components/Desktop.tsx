@@ -197,7 +197,7 @@ export default function Desktop() {
   function closeWindow(id: string) {
     setStates((prev) => ({ ...prev, [id]: { ...prev[id], isOpen: false } }));
     const next = APPS.find(
-      (a) => a.id !== id && states[a.id].isOpen && !states[a.id].isMinimized
+      (a) => a.id !== id && states[a.id]?.isOpen && !states[a.id]?.isMinimized
     );
     if (next) setActiveId(next.id);
   }
@@ -210,7 +210,7 @@ export default function Desktop() {
     }));
     if (!isCurrentlyMinimized && activeId === id) {
       const next = APPS.find(
-        (a) => a.id !== id && states[a.id].isOpen && !states[a.id].isMinimized
+        (a) => a.id !== id && states[a.id]?.isOpen && !states[a.id]?.isMinimized
       );
       if (next) focusWindow(next.id);
     }
