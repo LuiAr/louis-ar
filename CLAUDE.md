@@ -162,7 +162,13 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `usePrefs` hook: reads/writes `louis-ar-prefs` key, fires `prefs-change` custom event for live updates
   - `Desktop.tsx`: imports `usePrefs`; dynamically applies one of four desktop CSS classes; plays Web Audio beep on `window click` when sounds are enabled
   - `MusicPlayer.tsx`: fixed pre-existing `MouseEvent<HTMLDivElement>` → `MouseEvent<HTMLButtonElement>` type error on progress-bar handler
-- [ ] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`)
+- [x] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`; registered in `src/data/apps.tsx`)
+  - Static `REPO_TREE` data with accurate file sizes for all real project files
+  - Folder/document/application/image/config file kinds with pixel-art SVG silhouette icons
+  - Click to select, double-click or disclosure triangle (▶/▼) to expand/collapse folders
+  - Column headers: Name, Kind, Size; alternating row backgrounds
+  - Status bar shows selected item info or total visible item count
+  - All icons use `currentColor` only — auto-inverts correctly on selected (dark) rows
 
 #### Phase 13b: Maintenance pass (2026-05-05)
 - [x] **Bug fixes & accessibility hardening** — 3 files fixed:
@@ -175,55 +181,25 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
 Goal: render a completely different, touch-friendly UI when the user opens the site on a phone, while sharing all the same content data and design tokens.
 
 **Detection strategy**
-- [ ] Add `src/hooks/useIsMobile.ts` — a `"use client"` hook that returns `true` when `window.innerWidth < 768`. Uses `useState` + `useEffect` with a `resize` listener. Returns `false` on SSR (so the desktop shell is the SSR default; mobile swaps in on hydration).
-- [ ] In `src/app/page.tsx`, dynamically import a `<MobileApp />` wrapper (same `ssr: false` pattern as `DynamicHero`) and swap between `<DesktopApp />` and `<MobileApp />` based on the hook.
+- [x] `src/hooks/useIsMobile.ts` — hook that returns `true` when `window.innerWidth < 768`; `false` on SSR
+- [x] `src/app/page.tsx` — dynamically imports `<MobileApp />` via `ssr: false`; swaps based on hook
 
-**`src/components/mobile/MobileApp.tsx`** — root shell (`"use client"`)
-- [ ] Full-height scrollable page, `bg-[var(--color-cream)]`, `font-[var(--font-space-mono)]`
-- [ ] Sticky top bar: site title left, a hamburger/menu icon right (opens a slide-down nav)
-- [ ] Slide-down nav lists all app names from the `APPS` registry; tapping one scrolls to that section
-- [ ] No dock, no menubar, no dragging
+**`src/components/mobile/MobileApp.tsx`** — root shell (`"use client"`) ✅
+- [x] Full-height scrollable page, `bg-[var(--color-cream)]`
+- [x] Sticky top bar with site title and inline nav links (About / Projects / Experience / Contact)
+- [x] Shows About, Projects, Experience, Contact sections reusing desktop components
 
-**`src/components/mobile/MobileSection.tsx`** — reusable card wrapper
-- [ ] Cream background, `border-2 border-[var(--color-ink)]`, hard shadow `3px 3px 0 var(--color-ink)`
-- [ ] Title bar strip at top (same stripe pattern as `MacWindow`), app name left-aligned
-- [ ] Content slot below — each section renders its own simplified content
+**`src/components/mobile/MobileSection.tsx`** — reusable card wrapper ✅
+- [x] Mac-window chrome: title bar stripe at top, ink border, hard shadow
 
-**Per-section mobile views** (each a thin adapter over existing data, no new data files needed)
-- [ ] `src/components/mobile/sections/MobileAbout.tsx` — profile image + bio text, skills as inline tags
-- [ ] `src/components/mobile/sections/MobileProjects.tsx` — vertical list of project cards from `projects.ts`; each card: title, tech stack pills, description, links
-- [ ] `src/components/mobile/sections/MobileExperience.tsx` — accordion list from `experience.ts`; tap to expand role details
-- [ ] `src/components/mobile/sections/MobileContact.tsx` — stacked link buttons (GitHub, email, LinkedIn) with full-invert hover
-- [ ] `src/components/mobile/sections/MobileTerminal.tsx` — read-only scrollable output of a pre-baked "boot log" showing fun facts; no interactive input (keeps the terminal easter-egg vibe without a keyboard)
-- [ ] `src/components/mobile/sections/MobileSnake.tsx` — fully playable Snake with on-screen D-pad (four arrow buttons arranged in a cross); reuses the same game logic, swaps keyboard events for button taps
-
-**Animations**
-- [ ] Reuse `FadeInWhenVisible` for section entrance animations
-- [ ] All animations respect `usePrefersReducedMotion` (already exists)
+**Per-section mobile views** — remaining (desktop components reused for now)
+- [ ] `src/components/mobile/sections/MobileTerminal.tsx` — read-only boot log with fun facts; no interactive input
+- [ ] `src/components/mobile/sections/MobileSnake.tsx` — playable Snake with on-screen D-pad
 
 **Rules that still apply on mobile**
 - No border-radius
 - Hard drop shadows only
-- Hover = full invert (becomes tap highlight on mobile via `active:` variant)
 - Space Mono font, cream/ink palette
-
-**Files to create**
-```
-src/hooks/useIsMobile.ts
-src/components/mobile/MobileApp.tsx
-src/components/mobile/MobileSection.tsx
-src/components/mobile/sections/MobileAbout.tsx
-src/components/mobile/sections/MobileProjects.tsx
-src/components/mobile/sections/MobileExperience.tsx
-src/components/mobile/sections/MobileContact.tsx
-src/components/mobile/sections/MobileTerminal.tsx
-src/components/mobile/sections/MobileSnake.tsx
-```
-
-**Files to modify**
-```
-src/app/page.tsx  — add useIsMobile swap + dynamic import of MobileApp
-```
 
 ---
 
@@ -237,7 +213,7 @@ At the end of every task, Claude must always:
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-05)
-1. **Mobile layout** (`src/components/mobile/`) — The most impactful reach improvement: Phase 13 is fully spec'd in CLAUDE.md and would unlock the entire portfolio for phone visitors who currently see a desktop-only experience.
-2. **Finder** (`src/components/sections/Finder.tsx`) — A file-browser window rendering the repo file tree as a classic Mac list view with indented disclosure triangles; purely static data so zero runtime cost, but gives the portfolio a strong "OS authenticity" boost.
-3. **System-wide Theming in System Preferences** — Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps the CSS custom-property values at runtime; all components automatically recolor with zero per-component changes.
+## Top 3 Ideas (2026-05-06)
+1. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) — The two remaining Phase 13 mobile pieces; MobileTerminal brings the easter-egg vibe to phone visitors as a static boot log, and MobileSnake (D-pad controls) turns the phone into a mini game console.
+2. **System-wide Theming in System Preferences** — Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.
+3. **Screensaver** — After ~60 s of idle, fade to a fullscreen animated screensaver (flying pixel-art "toasters", bouncing DVD logo, or scrolling Matrix rain) that dismisses on any input; purely CSS + `requestAnimationFrame`, no new libraries needed.

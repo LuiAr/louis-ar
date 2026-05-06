@@ -11,7 +11,7 @@ const DINO_W = 28;
 const DINO_H = 32;
 const GRAVITY = 0.55;
 const JUMP_VY = -11.5;
-const SPEED_INIT = 4.5;
+const SPEED_INIT = 2.8;
 const MARGIN = 5;      // collision forgiveness
 
 const INK = "#1a1611";
@@ -205,7 +205,7 @@ export default function DinoGame() {
       if (g.state === "playing") {
         g.frame++;
         g.score = Math.floor(g.frame / 6);
-        g.speed = SPEED_INIT + g.frame * 0.003;
+        g.speed = SPEED_INIT + g.frame * 0.0018;
 
         // Physics
         g.dinoVY += GRAVITY;

@@ -54,6 +54,77 @@ function buildInitialState(): Record<string, WindowState> {
   );
 }
 
+// ── Games folder ─────────────────────────────────────────────────────────────
+
+const GAME_IDS = new Set(["snake", "dino"]);
+
+function GamesFolderIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <path
+        d="M2 8 L4 5 L10 5 L12 8 L26 8 L26 24 L2 24Z"
+        fill="var(--color-cream-dark)"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      {/* Joystick / game icon inside */}
+      <rect x="8" y="13" width="5" height="5" fill="currentColor" opacity="0.8" />
+      <rect x="6" y="15" width="9" height="2" fill="currentColor" opacity="0.8" />
+      <rect x="16" y="14" width="3" height="2" fill="currentColor" opacity="0.8" />
+      <rect x="19" y="14" width="2" height="3" fill="currentColor" opacity="0.8" />
+    </svg>
+  );
+}
+
+interface GamesFolderWindowProps {
+  onOpen: (id: string) => void;
+}
+
+function GamesFolderWindow({ onOpen }: GamesFolderWindowProps) {
+  const games = APPS.filter((a) => GAME_IDS.has(a.id));
+  return (
+    <div className="flex flex-col h-full">
+      <div
+        className="flex-1 flex items-center justify-center gap-8 p-6"
+        style={{ backgroundColor: "var(--color-window-bg)" }}
+      >
+        {games.map((app) => {
+          const Icon = app.Icon;
+          return (
+            <button
+              key={app.id}
+              onClick={() => onOpen(app.id)}
+              className="flex flex-col items-center gap-2 px-5 py-4 border border-transparent hover:border-[var(--color-ink)] hover:bg-[var(--color-cream-dark)] active:bg-[var(--color-ink)] active:text-[var(--color-cream)]"
+              aria-label={`Open ${app.dockLabel}`}
+            >
+              <span className="scale-[2] block mt-2 mb-2">
+                <Icon />
+              </span>
+              <span
+                className="text-[11px]"
+                style={{ fontFamily: "var(--font-space-mono)" }}
+              >
+                {app.dockLabel}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <div
+        className="flex items-center px-3 border-t-2 text-[10px]"
+        style={{
+          borderColor: "var(--color-ink)",
+          backgroundColor: "var(--color-cream-dark)",
+          padding: "3px 10px",
+          fontFamily: "var(--font-space-mono)",
+        }}
+      >
+        {games.length} items — double-click to open
+      </div>
+    </div>
+  );
+}
+
 // ── About modal ───────────────────────────────────────────────────────────────
 
 function AboutMacSVG() {
@@ -152,7 +223,13 @@ export default function Desktop() {
     APPS.find((a) => a.initiallyOpen)?.id ?? APPS[0].id
   );
   const [showAbout, setShowAbout] = useState(false);
+  const [gamesOpen, setGamesOpen] = useState(false);
+  const [gamesZ, setGamesZ] = useState(0);
+  const [gamesActive, setGamesActive] = useState(false);
   const topZ = useRef(APPS.length);
+
+  const dockApps = APPS.filter((a) => a.inDock);
+  const desktopIconApps = APPS.filter((a) => !a.inDock && !GAME_IDS.has(a.id));
 
   // Click sounds — plays a retro Mac beep when prefs.sounds is enabled
   useEffect(() => {
@@ -188,6 +265,7 @@ export default function Desktop() {
   function focusWindow(id: string) {
     topZ.current += 1;
     setActiveId(id);
+    setGamesActive(false);
     setStates((prev) => ({
       ...prev,
       [id]: { ...prev[id], zIndex: topZ.current },
@@ -218,6 +296,7 @@ export default function Desktop() {
 
   // Dock click: three-state — closed→open, minimized→restore, open→minimize
   function openOrFocus(id: string) {
+    setGamesActive(false);
     const s = states[id];
     if (!s.isOpen) {
       topZ.current += 1;
@@ -236,6 +315,19 @@ export default function Desktop() {
     } else {
       toggleMinimize(id);
     }
+  }
+
+  function openGamesFolder() {
+    topZ.current += 1;
+    setGamesOpen(true);
+    setGamesZ(topZ.current);
+    setGamesActive(true);
+  }
+
+  function focusGames() {
+    topZ.current += 1;
+    setGamesZ(topZ.current);
+    setGamesActive(true);
   }
 
   // Menu action: never closes — opens/restores if needed, otherwise focuses
@@ -336,8 +428,9 @@ export default function Desktop() {
     }
   }
 
-  const activeTitle =
-    APPS.find((a) => a.id === activeId)?.title ?? "Portfolio";
+  const activeTitle = gamesActive
+    ? "Games"
+    : (APPS.find((a) => a.id === activeId)?.title ?? "Portfolio");
 
   // Build window menu items from the registry for MenuBar
   const windowMenuItems: MenuItem[] = APPS.map((app) => ({
@@ -354,10 +447,15 @@ export default function Desktop() {
 
   // Dynamically disabled: close/minimize when no visible active window
   const disabledActions = new Set<MenuAction>();
-  const activeState = states[activeId];
-  if (!activeState?.isOpen || activeState?.isMinimized) {
+  if (gamesActive) {
     disabledActions.add("close");
     disabledActions.add("minimize");
+  } else {
+    const activeState = states[activeId];
+    if (!activeState?.isOpen || activeState?.isMinimized) {
+      disabledActions.add("close");
+      disabledActions.add("minimize");
+    }
   }
 
   return (
@@ -381,7 +479,67 @@ export default function Desktop() {
           "mac-desktop-bg-solid": prefs.desktopPattern === "solid",
         })}
       >
+        {/* Desktop icons — right column, non-dock apps + Games folder */}
+        <div className="absolute right-2 top-2 flex flex-col gap-0.5 z-[2] pointer-events-none">
+          {/* Games folder */}
+          <button
+            className="pointer-events-auto flex flex-col items-center gap-0.5 w-16 px-1 py-1 border border-transparent hover:border-[var(--color-ink)] hover:bg-[var(--color-cream-dark)]"
+            onClick={openGamesFolder}
+            aria-label="Open Games folder"
+          >
+            <GamesFolderIcon />
+            <span className="text-[9px] leading-tight text-center" style={{ fontFamily: "var(--font-space-mono)" }}>
+              Games
+            </span>
+          </button>
+
+          {/* Other desktop apps */}
+          {desktopIconApps.map((app) => {
+            const s = states[app.id];
+            const Icon = app.Icon;
+            return (
+              <button
+                key={app.id}
+                className="pointer-events-auto flex flex-col items-center gap-0.5 w-16 px-1 py-1 border border-transparent hover:border-[var(--color-ink)] hover:bg-[var(--color-cream-dark)]"
+                onClick={() => openOrFocus(app.id)}
+                aria-label={`Open ${app.dockLabel}`}
+              >
+                <Icon />
+                <span
+                  className="text-[9px] leading-tight text-center truncate w-full"
+                  style={{ fontFamily: "var(--font-space-mono)" }}
+                >
+                  {app.dockLabel}
+                </span>
+                {s.isOpen && (
+                  <span className="w-1 h-1 bg-[var(--color-ink)] border border-[var(--color-ink)]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
         <AnimatePresence>
+          {/* Games folder window */}
+          {gamesOpen && (
+            <DraggableWindow
+              key="games-folder"
+              title="Games"
+              isActive={gamesActive}
+              isMinimized={false}
+              defaultPosition={{ x: 220, y: 90 }}
+              defaultWidth={380}
+              defaultHeight={260}
+              zIndex={gamesZ}
+              onFocus={focusGames}
+              onClose={() => setGamesOpen(false)}
+              onMinimize={() => setGamesOpen(false)}
+              desktopRef={desktopRef}
+            >
+              <GamesFolderWindow onOpen={openOrFocus} />
+            </DraggableWindow>
+          )}
+
           {APPS.map((app) => {
             const s = states[app.id];
             if (!s.isOpen || s.isMinimized) return null;
@@ -421,10 +579,10 @@ export default function Desktop() {
         </AnimatePresence>
       </div>
 
-      {/* Dock — scrollable when many apps are open */}
+      {/* Dock — portfolio apps only */}
       <div className="flex-shrink-0 h-16 border-t-2 border-[var(--color-ink)] bg-[var(--color-cream)] flex items-center justify-center px-4 overflow-x-auto">
         <div className="flex items-center gap-1">
-          {APPS.map((app) => {
+          {dockApps.map((app) => {
             const s = states[app.id];
             const isActive = activeId === app.id && s.isOpen && !s.isMinimized;
             const Icon = app.Icon;

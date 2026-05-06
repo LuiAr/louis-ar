@@ -13,6 +13,7 @@ import Clock from "@/components/sections/Clock";
 import StickyNote from "@/components/sections/StickyNote";
 import Calculator from "@/components/sections/Calculator";
 import SystemPreferences from "@/components/sections/SystemPreferences";
+import Finder from "@/components/sections/Finder";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -239,6 +240,27 @@ function SystemPrefsIcon() {
   );
 }
 
+function FinderIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Folder body */}
+      <path
+        d="M2 8 L4 5 L10 5 L12 8 L26 8 L26 24 L2 24Z"
+        fill="var(--color-cream-dark)"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      {/* List rows inside */}
+      <rect x="4" y="12" width="2" height="2" fill="currentColor" />
+      <line x1="8" y1="13" x2="22" y2="13" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="4" y="16" width="2" height="2" fill="currentColor" />
+      <line x1="8" y1="17" x2="22" y2="17" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="4" y="20" width="2" height="2" fill="currentColor" />
+      <line x1="8" y1="21" x2="18" y2="21" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
 function CalcIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -271,6 +293,8 @@ export interface AppConfig {
   defaultWidth: number;
   defaultHeight: number;
   initiallyOpen: boolean;
+  /** Show in the bottom dock bar. False = desktop icon only. */
+  inDock: boolean;
   Icon: React.ComponentType;
   Content: React.ComponentType;
 }
@@ -292,6 +316,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 540,
     defaultHeight: 380,
     initiallyOpen: true,
+    inDock: true,
     Icon: HelloIcon,
     Content: DynamicHero,
   },
@@ -304,6 +329,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 580,
     defaultHeight: 500,
     initiallyOpen: true,
+    inDock: true,
     Icon: AboutIcon,
     Content: AboutSection,
   },
@@ -316,6 +342,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 640,
     defaultHeight: 460,
     initiallyOpen: false,
+    inDock: true,
     Icon: ProjectsIcon,
     Content: ProjectsSection,
   },
@@ -328,6 +355,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 720,
     defaultHeight: 400,
     initiallyOpen: false,
+    inDock: true,
     Icon: ExperienceIcon,
     Content: ExperienceSection,
   },
@@ -340,6 +368,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 340,
     defaultHeight: 400,
     initiallyOpen: false,
+    inDock: true,
     Icon: ContactIcon,
     Content: ContactSection,
   },
@@ -352,6 +381,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 580,
     defaultHeight: 330,
     initiallyOpen: false,
+    inDock: false,
     Icon: DinoIcon,
     Content: DinoGame,
   },
@@ -364,6 +394,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 520,
     defaultHeight: 360,
     initiallyOpen: false,
+    inDock: false,
     Icon: SnakeIcon,
     Content: SnakeGame,
   },
@@ -376,6 +407,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 560,
     defaultHeight: 380,
     initiallyOpen: false,
+    inDock: false,
     Icon: TerminalIcon,
     Content: Terminal,
   },
@@ -388,6 +420,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 520,
     defaultHeight: 420,
     initiallyOpen: false,
+    inDock: false,
     Icon: PhotoIcon,
     Content: PhotoViewer,
   },
@@ -400,6 +433,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 560,
     defaultHeight: 400,
     initiallyOpen: false,
+    inDock: false,
     Icon: MacPaintIcon,
     Content: MacPaint,
   },
@@ -412,6 +446,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 480,
     defaultHeight: 420,
     initiallyOpen: false,
+    inDock: false,
     Icon: MusicIcon,
     Content: MusicPlayer,
   },
@@ -424,6 +459,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 300,
     defaultHeight: 400,
     initiallyOpen: false,
+    inDock: false,
     Icon: ClockIcon,
     Content: Clock,
   },
@@ -436,6 +472,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 340,
     defaultHeight: 420,
     initiallyOpen: false,
+    inDock: false,
     Icon: StickyNoteIcon,
     Content: StickyNote,
   },
@@ -448,6 +485,7 @@ export const APPS: AppConfig[] = [
     defaultWidth: 280,
     defaultHeight: 380,
     initiallyOpen: false,
+    inDock: false,
     Icon: CalcIcon,
     Content: Calculator,
   },
@@ -460,7 +498,21 @@ export const APPS: AppConfig[] = [
     defaultWidth: 400,
     defaultHeight: 460,
     initiallyOpen: false,
+    inDock: false,
     Icon: SystemPrefsIcon,
     Content: SystemPreferences,
+  },
+  {
+    id: "finder",
+    title: "Finder",
+    menuLabel: "Finder",
+    dockLabel: "Finder",
+    defaultPosition: { x: 180, y: 75 },
+    defaultWidth: 560,
+    defaultHeight: 420,
+    initiallyOpen: false,
+    inDock: false,
+    Icon: FinderIcon,
+    Content: Finder,
   },
 ];
