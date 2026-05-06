@@ -13,6 +13,7 @@ import Clock from "@/components/sections/Clock";
 import StickyNote from "@/components/sections/StickyNote";
 import Calculator from "@/components/sections/Calculator";
 import SystemPreferences from "@/components/sections/SystemPreferences";
+import Finder from "@/components/sections/Finder";
 
 // ── Dock icons ────────────────────────────────────────────────────────────────
 
@@ -235,6 +236,27 @@ function SystemPrefsIcon() {
       <rect x="8"  y="8"  width="12" height="12" fill="currentColor" />
       <rect x="10" y="10" width="8"  height="8"  fill="var(--color-cream)" />
       <rect x="12" y="12" width="4"  height="4"  fill="currentColor" />
+    </svg>
+  );
+}
+
+function FinderIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* Folder body */}
+      <path
+        d="M2 8 L4 5 L10 5 L12 8 L26 8 L26 24 L2 24Z"
+        fill="var(--color-cream-dark)"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      {/* List rows inside */}
+      <rect x="4" y="12" width="2" height="2" fill="currentColor" />
+      <line x1="8" y1="13" x2="22" y2="13" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="4" y="16" width="2" height="2" fill="currentColor" />
+      <line x1="8" y1="17" x2="22" y2="17" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="4" y="20" width="2" height="2" fill="currentColor" />
+      <line x1="8" y1="21" x2="18" y2="21" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -462,5 +484,17 @@ export const APPS: AppConfig[] = [
     initiallyOpen: false,
     Icon: SystemPrefsIcon,
     Content: SystemPreferences,
+  },
+  {
+    id: "finder",
+    title: "Finder",
+    menuLabel: "Finder",
+    dockLabel: "Finder",
+    defaultPosition: { x: 180, y: 75 },
+    defaultWidth: 560,
+    defaultHeight: 420,
+    initiallyOpen: false,
+    Icon: FinderIcon,
+    Content: Finder,
   },
 ];
