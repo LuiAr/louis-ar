@@ -9,8 +9,8 @@ const ROWS = 15;
 const CW = COLS * CELL; // 448
 const CH = ROWS * CELL; // 240
 
-const TICK_INIT = 10; // frames per snake move at start
-const SPEED_MIN = 4;  // fastest possible tick interval
+const TICK_INIT = 22; // frames per snake move at start (~2.7 moves/sec at 60fps)
+const SPEED_MIN = 6;  // fastest possible tick interval
 
 const INK = "#1a1611";
 const CREAM = "#f5f0e8";
