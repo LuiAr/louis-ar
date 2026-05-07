@@ -1,5 +1,6 @@
 export type ExperienceType =
   | "full-time"
+  | "part-time"
   | "contract"
   | "internship"
   | "freelance";

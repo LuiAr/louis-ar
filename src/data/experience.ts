@@ -5,7 +5,7 @@ export const experience: ExperienceEntry[] = [
     id: "redfield",
     company: "Redfield AB",
     role: "Data Scientist",
-    type: "full-time",
+    type: "part-time",
     startDate: "2025-09",
     endDate: "present",
     location: "Stockholm, Sweden",
