@@ -323,6 +323,8 @@ export default function Finder() {
 
       {/* File list */}
       <div
+        role="listbox"
+        aria-label="File browser"
         className="flex-1 min-h-0 overflow-y-auto"
         style={{ backgroundColor: "var(--color-window-bg)" }}
       >
@@ -335,6 +337,9 @@ export default function Finder() {
           return (
             <div
               key={row.path}
+              role="option"
+              aria-selected={isSelected}
+              tabIndex={0}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -350,9 +355,22 @@ export default function Finder() {
                   ? "var(--color-window-bg)"
                   : "var(--color-cream-dark)",
                 color: isSelected ? "var(--color-cream)" : "var(--color-ink)",
+                outline: "none",
               }}
               onClick={() => setSelected(row.path === selected ? null : row.path)}
               onDoubleClick={() => isFolder && toggleFolder(row.path)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelected(row.path === selected ? null : row.path);
+                } else if (e.key === "ArrowRight" && isFolder && hasChildren && !isExpanded) {
+                  e.preventDefault();
+                  toggleFolder(row.path);
+                } else if (e.key === "ArrowLeft" && isFolder && isExpanded) {
+                  e.preventDefault();
+                  toggleFolder(row.path);
+                }
+              }}
             >
               {/* Disclosure triangle */}
               <button
