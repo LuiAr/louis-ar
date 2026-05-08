@@ -10,7 +10,7 @@ import { usePrefs } from "@/hooks/usePrefs";
 
 // ── localStorage persistence ──────────────────────────────────────────────────
 
-const STORAGE_KEY = "louis-ar-windows-v5";
+const STORAGE_KEY = "louis-ar-windows-v6";
 const DEFAULT_SETUP_KEY = "louis-ar-default-setup-v1";
 
 interface StoredLayout {
