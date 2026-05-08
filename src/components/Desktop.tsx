@@ -281,7 +281,7 @@ export default function Desktop() {
   }
 
   function toggleMinimize(id: string) {
-    const isCurrentlyMinimized = states[id].isMinimized;
+    const isCurrentlyMinimized = states[id]?.isMinimized ?? false;
     setStates((prev) => ({
       ...prev,
       [id]: { ...prev[id], isMinimized: !prev[id].isMinimized },
@@ -298,6 +298,7 @@ export default function Desktop() {
   function openOrFocus(id: string) {
     setGamesActive(false);
     const s = states[id];
+    if (!s) return;
     if (!s.isOpen) {
       topZ.current += 1;
       setActiveId(id);
@@ -333,6 +334,7 @@ export default function Desktop() {
   // Menu action: never closes — opens/restores if needed, otherwise focuses
   function showWindow(id: string) {
     const s = states[id];
+    if (!s) return;
     if (!s.isOpen || s.isMinimized) {
       topZ.current += 1;
       setActiveId(id);
@@ -378,7 +380,7 @@ export default function Desktop() {
           break;
         case "Backquote": {
           const openWindows = APPS.filter(
-            (a) => states[a.id].isOpen && !states[a.id].isMinimized
+            (a) => states[a.id]?.isOpen && !states[a.id]?.isMinimized
           );
           if (openWindows.length < 2) break;
           e.preventDefault();
@@ -441,7 +443,7 @@ export default function Desktop() {
   // Checked: windows that are open and visible
   const checkedActions = new Set<MenuAction>(
     APPS
-      .filter((a) => states[a.id].isOpen && !states[a.id].isMinimized)
+      .filter((a) => states[a.id]?.isOpen && !states[a.id]?.isMinimized)
       .map((a) => `open-${a.id}` as MenuAction)
   );
 

@@ -176,6 +176,11 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `MusicPlayer.tsx`: tracklist items converted from `<div onClick>` to `<button>` elements with `aria-label` and `aria-pressed` — were not keyboard-navigable or announced to screen readers
   - `Desktop.tsx`: added optional-chaining null guard (`states[a.id]?.isOpen`) in both `closeWindow` and `toggleMinimize` — prevents a crash if APPS ever contains an entry whose ID is absent from the live state (possible after adding a new app while the user has stale localStorage data)
 
+#### Phase 13c: Maintenance pass (2026-05-07)
+- [x] **Optional-chaining hardening & Finder keyboard accessibility** — 2 files fixed:
+  - `Desktop.tsx`: extended optional-chaining guards to all remaining direct `states[id]` accesses — `toggleMinimize` (`states[id]?.isMinimized ?? false`), `openOrFocus` (early-return null guard), `showWindow` (early-return null guard), Backquote keyboard shortcut filter (`states[a.id]?.isOpen`), and `checkedActions` filter (`states[a.id]?.isOpen`) — makes the code robust against any future APPS/state sync edge cases
+  - `Finder.tsx`: file list rows promoted to `role="option"` with `aria-selected`, `tabIndex={0}`, and `onKeyDown` handler (Enter/Space to select, ArrowRight to expand folder, ArrowLeft to collapse) inside a `role="listbox"` container — rows were previously click-only and invisible to keyboard users and screen readers
+
 #### Phase 13: Mobile Version (Option A — Mobile-native layout)
 
 Goal: render a completely different, touch-friendly UI when the user opens the site on a phone, while sharing all the same content data and design tokens.
@@ -213,7 +218,7 @@ At the end of every task, Claude must always:
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-06)
+## Top 3 Ideas (2026-05-07)
 1. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) — The two remaining Phase 13 mobile pieces; MobileTerminal brings the easter-egg vibe to phone visitors as a static boot log, and MobileSnake (D-pad controls) turns the phone into a mini game console.
 2. **System-wide Theming in System Preferences** — Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.
 3. **Screensaver** — After ~60 s of idle, fade to a fullscreen animated screensaver (flying pixel-art "toasters", bouncing DVD logo, or scrolling Matrix rain) that dismisses on any input; purely CSS + `requestAnimationFrame`, no new libraries needed.
