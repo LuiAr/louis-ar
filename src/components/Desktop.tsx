@@ -10,7 +10,8 @@ import { usePrefs } from "@/hooks/usePrefs";
 
 // ── localStorage persistence ──────────────────────────────────────────────────
 
-const STORAGE_KEY = "louis-ar-windows-v2";
+const STORAGE_KEY = "louis-ar-windows-v4";
+const DEFAULT_SETUP_KEY = "louis-ar-default-setup-v1";
 
 interface StoredLayout {
   x: number;
@@ -19,13 +20,34 @@ interface StoredLayout {
   height: number;
 }
 
-function loadLayout(): Record<string, StoredLayout> {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-  } catch {
-    return {};
+interface StoredDefaultSetup {
+  openAppIds: string[];
+  activeId?: string;
+  layout: Record<string, StoredLayout>;
+}
+
+declare global {
+  interface Window {
+    __louisArSetDefaultLayout?: () => string;
+    __louisArGetDefaultLayout?: () => string;
   }
+}
+
+function loadJson<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? JSON.stringify(fallback));
+  } catch {
+    return fallback;
+  }
+}
+
+function loadLayout(): Record<string, StoredLayout> {
+  return loadJson<Record<string, StoredLayout>>(STORAGE_KEY, {});
+}
+
+function loadDefaultSetup(): StoredDefaultSetup | null {
+  return loadJson<StoredDefaultSetup | null>(DEFAULT_SETUP_KEY, null);
 }
 
 function saveLayout(id: string, data: StoredLayout) {
@@ -45,13 +67,24 @@ interface WindowState {
   zIndex: number;
 }
 
-function buildInitialState(): Record<string, WindowState> {
+function buildInitialState(defaultSetup: StoredDefaultSetup | null): Record<string, WindowState> {
+  const defaultOpenIds = new Set(defaultSetup?.openAppIds);
   return Object.fromEntries(
     APPS.map((app, i) => [
       app.id,
-      { isOpen: app.initiallyOpen, isMinimized: false, zIndex: APPS.length - i },
+      {
+        isOpen: defaultSetup ? defaultOpenIds.has(app.id) : app.initiallyOpen,
+        isMinimized: false,
+        zIndex: APPS.length - i,
+      },
     ])
   );
+}
+
+function getInitialActiveId(defaultSetup: StoredDefaultSetup | null) {
+  if (defaultSetup?.activeId) return defaultSetup.activeId;
+  if (defaultSetup?.openAppIds[0]) return defaultSetup.openAppIds[0];
+  return APPS.find((a) => a.initiallyOpen)?.id ?? APPS[0].id;
 }
 
 // ── Games folder ─────────────────────────────────────────────────────────────
@@ -218,10 +251,9 @@ function AboutModal({ onClose }: { onClose: () => void }) {
 export default function Desktop() {
   const desktopRef = useRef<HTMLDivElement>(null);
   const prefs = usePrefs();
-  const [states, setStates] = useState<Record<string, WindowState>>(buildInitialState);
-  const [activeId, setActiveId] = useState<string>(
-    APPS.find((a) => a.initiallyOpen)?.id ?? APPS[0].id
-  );
+  const [defaultSetup] = useState<StoredDefaultSetup | null>(loadDefaultSetup);
+  const [states, setStates] = useState<Record<string, WindowState>>(() => buildInitialState(defaultSetup));
+  const [activeId, setActiveId] = useState<string>(() => getInitialActiveId(defaultSetup));
   const [showAbout, setShowAbout] = useState(false);
   const [gamesOpen, setGamesOpen] = useState(false);
   const [gamesZ, setGamesZ] = useState(0);
@@ -260,7 +292,76 @@ export default function Desktop() {
   // Loaded once for defaultPosition/defaultWidth/defaultHeight on first mount
   const [storedLayout] = useState<Record<string, StoredLayout>>(loadLayout);
   // Mutable ref tracking live layout so position and size callbacks share state
-  const layoutRef = useRef<Record<string, StoredLayout>>({ ...storedLayout });
+  const layoutRef = useRef<Record<string, StoredLayout>>({
+    ...storedLayout,
+    ...(defaultSetup?.layout ?? {}),
+  });
+
+  useEffect(() => {
+    function getOpenApps() {
+      return APPS.filter(
+        (app) => app.id !== "terminal" && states[app.id]?.isOpen && !states[app.id]?.isMinimized
+      );
+    }
+
+    function getAppLayout(app: (typeof APPS)[number]) {
+      return layoutRef.current[app.id] ?? {
+        x: app.defaultPosition.x,
+        y: app.defaultPosition.y,
+        width: app.defaultWidth,
+        height: app.defaultHeight,
+      };
+    }
+
+    window.__louisArSetDefaultLayout = () => {
+      const openApps = getOpenApps();
+
+      if (openApps.length === 0) {
+        return "set-default: no open apps to save. Open at least one non-terminal app first.";
+      }
+
+      const layout = Object.fromEntries(
+        openApps.map((app) => [app.id, getAppLayout(app)])
+      );
+      const nextDefault: StoredDefaultSetup = {
+        openAppIds: openApps.map((app) => app.id),
+        activeId: activeId !== "terminal" && openApps.some((app) => app.id === activeId)
+          ? activeId
+          : openApps[0]?.id,
+        layout,
+      };
+
+      localStorage.setItem(DEFAULT_SETUP_KEY, JSON.stringify(nextDefault));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+
+      return `set-default: saved ${openApps.length} app${openApps.length === 1 ? "" : "s"} (${openApps.map((app) => app.title).join(", ")}). Reload the site to use this as your default setup in this browser.`;
+    };
+
+    window.__louisArGetDefaultLayout = () => {
+      const openApps = getOpenApps();
+
+      if (openApps.length === 0) {
+        return "get-default: no open apps found. Open the windows you want first.";
+      }
+
+      const values = openApps.map((app) => {
+        const layout = getAppLayout(app);
+        return [
+          `${app.title} (${app.id})`,
+          `  defaultPosition: { x: ${Math.round(layout.x)}, y: ${Math.round(layout.y)} },`,
+          `  defaultWidth: ${Math.round(layout.width)},`,
+          `  defaultHeight: ${Math.round(layout.height)},`,
+        ].join("\n");
+      });
+
+      return `Current open window defaults:\n\n${values.join("\n\n")}`;
+    };
+
+    return () => {
+      delete window.__louisArSetDefaultLayout;
+      delete window.__louisArGetDefaultLayout;
+    };
+  }, [activeId, states]);
 
   function focusWindow(id: string) {
     topZ.current += 1;
@@ -545,7 +646,7 @@ export default function Desktop() {
           {APPS.map((app) => {
             const s = states[app.id];
             if (!s.isOpen || s.isMinimized) return null;
-            const stored = storedLayout[app.id];
+            const stored = defaultSetup?.layout[app.id] ?? storedLayout[app.id];
             const Content = app.Content;
             return (
               <DraggableWindow

@@ -60,6 +60,6 @@ export const projects: Project[] = [
       live: "https://louisarbey.eu",
     },
     techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Motion"],
-    featured: true,
+    featured: false,
   },
 ];

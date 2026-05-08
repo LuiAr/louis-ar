@@ -1,9 +1,5 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "motion/react";
-import TiltCard from "@/components/animations/TiltCard";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 import { projects } from "@/data/projects";
 import type { Project } from "@/types";
@@ -58,161 +54,65 @@ function StatusBadge({ status }: { status: Project["status"] }) {
   );
 }
 
-function getPrimaryProjectUrl(project: Project) {
-  return project.links.live ?? project.links.github ?? project.links.case_study;
-}
-
 function ProjectLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="text-[10px] underline"
+      className="inline-flex items-center justify-center border border-[var(--color-ink)] bg-[var(--color-window-bg)] px-2 py-1 text-[10px] font-bold leading-none mac-invert-hover"
     >
       {label} ↗
     </a>
   );
 }
 
-function ProjectTooltip({
-  project,
-  anchorRect,
-  onMouseEnter,
-  onMouseLeave,
-}: {
-  project: Project;
-  anchorRect: DOMRect;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}) {
-  const style: React.CSSProperties = {
-    position: "fixed",
-    left: anchorRect.left + anchorRect.width / 2,
-    top: anchorRect.top - 8,
-    transform: "translate(-50%, -100%)",
-    width: "224px",
-    zIndex: 9999,
-    pointerEvents: "auto",
-  };
+function ProjectCard({ project }: { project: Project }) {
+  const hasLinks = Boolean(
+    project.links.live ?? project.links.github ?? project.links.case_study
+  );
 
-  return createPortal(
-    <motion.div
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
-      transition={{ duration: 0.15 }}
-      style={style}
-      className="mac-window"
-    >
-      <div className="p-3 space-y-1">
-        <p className="font-bold text-[12px]">{project.title}</p>
-        <p className="text-[11px] text-[var(--color-ink-muted)]">
-          {project.shortDescription}
-        </p>
-        <div className="flex flex-wrap gap-1 pt-1">
-          {project.techStack.slice(0, 3).map((t) => (
-            <span key={t} className="text-[10px] border border-[var(--color-ink)] px-1">
-              {t}
-            </span>
-          ))}
+  return (
+    <article className="border-2 border-[var(--color-ink)] bg-[var(--color-window-bg)] shadow-[2px_2px_0_var(--color-ink)]">
+      <div className="grid gap-3 p-3 sm:grid-cols-[56px_1fr_auto] sm:items-start">
+        <div className="flex h-14 w-14 items-center justify-center border border-[var(--color-ink)] bg-[var(--color-cream-dark)]">
+          <ProjectIcon type={project.iconType} />
         </div>
-        <div className="flex gap-2 pt-1">
+
+        <div className="min-w-0 space-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h3 className="text-[13px] font-bold leading-tight">
+              {project.title}
+            </h3>
+            <div className="flex items-center gap-2 text-[10px] text-[var(--color-ink-muted)]">
+              <StatusBadge status={project.status} />
+              <span>{project.year}</span>
+            </div>
+          </div>
+
+          <p className="text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
+            {project.shortDescription}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 sm:max-w-[120px] sm:justify-end">
+          {project.links.live && (
+            <ProjectLink href={project.links.live} label="Link" />
+          )}
           {project.links.github && (
             <ProjectLink href={project.links.github} label="GitHub" />
-          )}
-          {project.links.live && (
-            <ProjectLink href={project.links.live} label="Live" />
           )}
           {project.links.case_study && (
             <ProjectLink href={project.links.case_study} label="Case Study" />
           )}
+          {!hasLinks && (
+            <span className="inline-flex items-center justify-center border border-[var(--color-ink)] bg-[var(--color-cream-dark)] px-2 py-1 text-[10px] font-bold leading-none text-[var(--color-ink-muted)]">
+              TODO
+            </span>
+          )}
         </div>
       </div>
-    </motion.div>,
-    document.body
-  );
-}
-
-function ProjectCard({ project }: { project: Project }) {
-  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const primaryUrl = getPrimaryProjectUrl(project);
-
-  function clearCloseTimeout() {
-    if (!closeTimeoutRef.current) return;
-    clearTimeout(closeTimeoutRef.current);
-    closeTimeoutRef.current = null;
-  }
-
-  function handleMouseEnter() {
-    clearCloseTimeout();
-    if (cardRef.current) setAnchorRect(cardRef.current.getBoundingClientRect());
-  }
-
-  function handleMouseLeave() {
-    closeTimeoutRef.current = setTimeout(() => {
-      setAnchorRect(null);
-      closeTimeoutRef.current = null;
-    }, 120);
-  }
-
-  useEffect(() => {
-    if (!anchorRect) return;
-    function update() {
-      if (cardRef.current) setAnchorRect(cardRef.current.getBoundingClientRect());
-    }
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, [anchorRect]);
-
-  useEffect(() => clearCloseTimeout, []);
-
-  const content = (
-    <div
-      ref={cardRef}
-      className="flex flex-col items-center gap-2 p-4 cursor-pointer mac-invert-hover border border-transparent hover:border-[var(--color-ink)]"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <ProjectIcon type={project.iconType} />
-      <span className="text-[11px] text-center font-bold leading-tight max-w-[120px]">
-        {project.title}
-      </span>
-      <StatusBadge status={project.status} />
-    </div>
-  );
-
-  return (
-    <TiltCard className="relative">
-      {primaryUrl ? (
-        <a
-          href={primaryUrl}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Open ${project.title}`}
-          className="block text-inherit no-underline"
-        >
-          {content}
-        </a>
-      ) : (
-        content
-      )}
-
-      <AnimatePresence>
-        {anchorRect && (
-          <ProjectTooltip
-            project={project}
-            anchorRect={anchorRect}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          />
-        )}
-      </AnimatePresence>
-    </TiltCard>
+    </article>
   );
 }
 
@@ -220,12 +120,9 @@ export default function ProjectsSection() {
   return (
     <div className="p-4">
       <p className="text-[11px] text-[var(--color-ink-muted)] mb-4 px-2">
-        {projects.length} items
+        {projects.length} projects
       </p>
-      <StaggerChildren
-        className="grid gap-2"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))" }}
-      >
+      <StaggerChildren className="grid gap-3">
         {projects.map((project) => (
           <StaggerItem key={project.id}>
             <ProjectCard project={project} />

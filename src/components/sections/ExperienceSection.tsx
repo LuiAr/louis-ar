@@ -13,8 +13,8 @@ function formatDate(date: string | "present") {
 }
 
 function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
-  const [open, setOpen] = useState(false);
   const isCurrent = entry.endDate === "present";
+  const [open, setOpen] = useState(isCurrent);
 
   return (
     <div>
@@ -69,13 +69,6 @@ function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-wrap gap-1 pt-1">
-                {entry.skills.map((skill) => (
-                  <span key={skill} className="text-[10px] border border-[var(--color-ink)] px-1.5 py-0.5 bg-[var(--color-window-bg)]">
-                    {skill}
-                  </span>
-                ))}
-              </div>
             </div>
           </motion.div>
         )}

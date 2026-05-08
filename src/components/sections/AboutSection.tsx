@@ -1,12 +1,5 @@
 import Image from "next/image";
 
-const SKILLS = [
-  "Python", "SQL", "Java",
-  "Azure", "Spark", "Kafka", "Deepset",
-  "MongoDB", "Cassandra", "Neo4j", "ElasticSearch",
-  "Power BI", "Qlik Sense", "scikit-learn",
-];
-
 export default function AboutSection() {
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8">
@@ -27,7 +20,7 @@ export default function AboutSection() {
         </span>
       </div>
 
-      {/* Bio + skills */}
+      {/* Bio */}
       <div className="flex-1 space-y-4">
         <div>
           <p className="text-[11px] text-[var(--color-ink-muted)] uppercase tracking-widest mb-1">
@@ -43,22 +36,6 @@ export default function AboutSection() {
             Currently writing my Master&apos;s thesis with RISE &amp; Husqvarna on
             6G on-device AI for autonomous robots.
           </p>
-        </div>
-
-        <div>
-          <p className="text-[11px] text-[var(--color-ink-muted)] uppercase tracking-widest mb-2">
-            Skills
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {SKILLS.map((skill) => (
-              <span
-                key={skill}
-                className="text-[11px] border border-[var(--color-ink)] px-2 py-0.5 bg-[var(--color-cream-dark)] mac-invert-hover cursor-default"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </div>

@@ -8,6 +8,13 @@ interface HistoryEntry {
   output: string;
 }
 
+declare global {
+  interface Window {
+    __louisArSetDefaultLayout?: () => string;
+    __louisArGetDefaultLayout?: () => string;
+  }
+}
+
 const COMMANDS: Record<string, () => string> = {
   help: () => `Available commands:
   help      - Show this help message
@@ -171,7 +178,13 @@ export default function Terminal() {
     const lowerCmd = trimmed.toLowerCase();
     let output = "";
 
-    if (COMMANDS[lowerCmd]) {
+    if (lowerCmd === "set-default") {
+      output = window.__louisArSetDefaultLayout?.()
+        ?? "set-default: unavailable outside the desktop window manager.";
+    } else if (lowerCmd === "get-default") {
+      output = window.__louisArGetDefaultLayout?.()
+        ?? "get-default: unavailable outside the desktop window manager.";
+    } else if (COMMANDS[lowerCmd]) {
       output = COMMANDS[lowerCmd]();
     } else if (Object.keys(COMMANDS).some((k) => lowerCmd.startsWith(k + " "))) {
       const baseCmd = Object.keys(COMMANDS).find((k) => lowerCmd.startsWith(k + " "));
