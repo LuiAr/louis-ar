@@ -58,7 +58,34 @@ function StatusBadge({ status }: { status: Project["status"] }) {
   );
 }
 
-function ProjectTooltip({ project, anchorRect }: { project: Project; anchorRect: DOMRect }) {
+function getPrimaryProjectUrl(project: Project) {
+  return project.links.live ?? project.links.github ?? project.links.case_study;
+}
+
+function ProjectLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="text-[10px] underline"
+    >
+      {label} ↗
+    </a>
+  );
+}
+
+function ProjectTooltip({
+  project,
+  anchorRect,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  project: Project;
+  anchorRect: DOMRect;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+}) {
   const style: React.CSSProperties = {
     position: "fixed",
     left: anchorRect.left + anchorRect.width / 2,
@@ -66,11 +93,13 @@ function ProjectTooltip({ project, anchorRect }: { project: Project; anchorRect:
     transform: "translate(-50%, -100%)",
     width: "224px",
     zIndex: 9999,
-    pointerEvents: "none",
+    pointerEvents: "auto",
   };
 
   return createPortal(
     <motion.div
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
@@ -92,10 +121,13 @@ function ProjectTooltip({ project, anchorRect }: { project: Project; anchorRect:
         </div>
         <div className="flex gap-2 pt-1">
           {project.links.github && (
-            <span className="text-[10px] underline">GitHub ↗</span>
+            <ProjectLink href={project.links.github} label="GitHub" />
           )}
           {project.links.live && (
-            <span className="text-[10px] underline">Live ↗</span>
+            <ProjectLink href={project.links.live} label="Live" />
+          )}
+          {project.links.case_study && (
+            <ProjectLink href={project.links.case_study} label="Case Study" />
           )}
         </div>
       </div>
@@ -107,13 +139,25 @@ function ProjectTooltip({ project, anchorRect }: { project: Project; anchorRect:
 function ProjectCard({ project }: { project: Project }) {
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const primaryUrl = getPrimaryProjectUrl(project);
+
+  function clearCloseTimeout() {
+    if (!closeTimeoutRef.current) return;
+    clearTimeout(closeTimeoutRef.current);
+    closeTimeoutRef.current = null;
+  }
 
   function handleMouseEnter() {
+    clearCloseTimeout();
     if (cardRef.current) setAnchorRect(cardRef.current.getBoundingClientRect());
   }
 
   function handleMouseLeave() {
-    setAnchorRect(null);
+    closeTimeoutRef.current = setTimeout(() => {
+      setAnchorRect(null);
+      closeTimeoutRef.current = null;
+    }, 120);
   }
 
   useEffect(() => {
@@ -125,23 +169,48 @@ function ProjectCard({ project }: { project: Project }) {
     return () => window.removeEventListener("scroll", update);
   }, [anchorRect]);
 
+  useEffect(() => clearCloseTimeout, []);
+
+  const content = (
+    <div
+      ref={cardRef}
+      className="flex flex-col items-center gap-2 p-4 cursor-pointer mac-invert-hover border border-transparent hover:border-[var(--color-ink)]"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <ProjectIcon type={project.iconType} />
+      <span className="text-[11px] text-center font-bold leading-tight max-w-[120px]">
+        {project.title}
+      </span>
+      <StatusBadge status={project.status} />
+    </div>
+  );
+
   return (
     <TiltCard className="relative">
-      <div
-        ref={cardRef}
-        className="flex flex-col items-center gap-2 p-4 cursor-pointer mac-invert-hover border border-transparent hover:border-[var(--color-ink)]"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <ProjectIcon type={project.iconType} />
-        <span className="text-[11px] text-center font-bold leading-tight max-w-[120px]">
-          {project.title}
-        </span>
-        <StatusBadge status={project.status} />
-      </div>
+      {primaryUrl ? (
+        <a
+          href={primaryUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open ${project.title}`}
+          className="block text-inherit no-underline"
+        >
+          {content}
+        </a>
+      ) : (
+        content
+      )}
 
       <AnimatePresence>
-        {anchorRect && <ProjectTooltip project={project} anchorRect={anchorRect} />}
+        {anchorRect && (
+          <ProjectTooltip
+            project={project}
+            anchorRect={anchorRect}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        )}
       </AnimatePresence>
     </TiltCard>
   );

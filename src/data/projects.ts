@@ -40,7 +40,7 @@ export const projects: Project[] = [
     year: 2025,
     iconType: "application",
     links: {
-      live: "https://easy-qr-fast.lovable.app",
+      live: "https://qrcode.louisarbey.eu",
     },
     techStack: ["Lovable"],
     featured: false,
