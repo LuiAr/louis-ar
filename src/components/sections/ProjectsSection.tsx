@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 import { projects } from "@/data/projects";
 import type { Project } from "@/types";
@@ -37,9 +38,21 @@ function AppIcon() {
   );
 }
 
-function ProjectIcon({ type }: { type: Project["iconType"] }) {
-  if (type === "folder") return <FolderIcon />;
-  if (type === "document") return <DocumentIcon />;
+function ProjectIcon({ project }: { project: Project }) {
+  if (project.iconSrc) {
+    return (
+      <Image
+        src={project.iconSrc}
+        alt={`${project.title} icon`}
+        width={64}
+        height={64}
+        unoptimized
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+  if (project.iconType === "folder") return <FolderIcon />;
+  if (project.iconType === "document") return <DocumentIcon />;
   return <AppIcon />;
 }
 
@@ -60,9 +73,10 @@ function ProjectLink({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center justify-center border border-[var(--color-ink)] bg-[var(--color-window-bg)] px-2 py-1 text-[10px] font-bold leading-none mac-invert-hover"
+      className="group inline-flex items-center gap-1 border border-[var(--color-ink)] bg-[var(--color-window-bg)] px-3 py-1.5 text-[11px] font-bold leading-none text-[var(--color-ink)] shadow-[2px_2px_0_var(--color-ink)] transition-all duration-100 hover:-translate-x-px hover:-translate-y-px hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)] hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-px active:translate-y-px active:shadow-none"
     >
-      {label} ↗
+      {label}
+      <span className="transition-transform duration-100 group-hover:translate-x-px group-hover:-translate-y-px">↗</span>
     </a>
   );
 }
@@ -73,15 +87,15 @@ function ProjectCard({ project }: { project: Project }) {
   );
 
   return (
-    <article className="border-2 border-[var(--color-ink)] bg-[var(--color-window-bg)] shadow-[2px_2px_0_var(--color-ink)]">
-      <div className="grid gap-3 p-3 sm:grid-cols-[56px_1fr_auto] sm:items-start">
-        <div className="flex h-14 w-14 items-center justify-center border border-[var(--color-ink)] bg-[var(--color-cream-dark)]">
-          <ProjectIcon type={project.iconType} />
+    <article className="border-2 border-[var(--color-ink)] bg-[var(--color-window-bg)] shadow-[3px_3px_0_var(--color-ink)]">
+      <div className="grid gap-4 p-4 sm:grid-cols-[64px_1fr_auto] sm:items-center">
+        <div className="flex h-16 w-16 items-center justify-center overflow-hidden border border-[var(--color-ink)] bg-[var(--color-cream-dark)]">
+          <ProjectIcon project={project} />
         </div>
 
-        <div className="min-w-0 space-y-2">
+        <div className="min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h3 className="text-[13px] font-bold leading-tight">
+            <h3 className="text-sm font-bold leading-tight">
               {project.title}
             </h3>
             <div className="flex items-center gap-2 text-[10px] text-[var(--color-ink-muted)]">
@@ -90,12 +104,12 @@ function ProjectCard({ project }: { project: Project }) {
             </div>
           </div>
 
-          <p className="text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
+          <p className="text-xs leading-relaxed text-[var(--color-ink)]">
             {project.shortDescription}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 sm:max-w-[120px] sm:justify-end">
+        <div className="flex flex-wrap gap-2 sm:max-w-[140px] sm:justify-end">
           {project.links.live && (
             <ProjectLink href={project.links.live} label="Link" />
           )}
@@ -106,7 +120,7 @@ function ProjectCard({ project }: { project: Project }) {
             <ProjectLink href={project.links.case_study} label="Case Study" />
           )}
           {!hasLinks && (
-            <span className="inline-flex items-center justify-center border border-[var(--color-ink)] bg-[var(--color-cream-dark)] px-2 py-1 text-[10px] font-bold leading-none text-[var(--color-ink-muted)]">
+            <span className="inline-flex items-center justify-center border border-[var(--color-ink)] bg-[var(--color-cream-dark)] px-3 py-1.5 text-[11px] font-bold leading-none text-[var(--color-ink-muted)]">
               TODO
             </span>
           )}

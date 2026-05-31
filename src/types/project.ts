@@ -17,6 +17,8 @@ export interface Project {
   status: ProjectStatus;
   year: number;
   iconType: "folder" | "document" | "application" | "image";
+  /** Optional image path (relative to /public). When set, it overrides the SVG iconType. */
+  iconSrc?: string;
   links: {
     live?: string;
     github?: string;

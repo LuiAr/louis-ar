@@ -10,8 +10,11 @@ export const projects: Project[] = [
     tags: ["ai"],
     status: "in-progress",
     year: 2026,
-    iconType: "document",
-    links: {},
+    iconType: "image",
+    iconSrc: "/husq_robot.png",
+    links: {
+      live: "https://thesis.louisarbey.eu",
+    },
     techStack: ["Python", "VLM", "SLM", "6G", "Robotics"],
     featured: true,
   },
