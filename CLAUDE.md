@@ -95,26 +95,13 @@ The custom domain is set by the `cname: louisarbey.eu` input in `.github/workflo
 - [x] **Snake Game** - Classic snake as a draggable window app (`src/components/sections/SnakeGame.tsx`; registered in `src/data/apps.tsx` as `Snake.app`)
   - 28×15 checker-grid canvas, direction-aware head eyes, pulsing pixel-art apple, speed scaling every 3 apples, high score tracking, idle/playing/dead states
 - [x] **Terminal** - Fake terminal with fun easter eggs (`src/components/sections/Terminal.tsx`; registered in `src/data/apps.tsx`)
-- [x] **Photo Viewer** - Gallery of project screenshots or photos (`src/components/sections/PhotoViewer.tsx`; registered in `src/data/apps.tsx` as `Photos`)
-  - Grid view with 6 pixel-art images (profile photo + 5 SVG artworks for projects/work)
-  - Single-image lightbox mode with Prev/Next navigation
-  - Classic Mac toolbar, status bar showing file metadata
+- [~] **Photo Viewer** - built, then removed in Phase 17 (2026-08-24)
 
 #### Phase 7: New Apps
-- [x] **MacPaint** - Pixel-art drawing canvas with pencil, eraser, fill-bucket, rect, and line tools; B&W only; canvas saves to localStorage (`src/components/sections/MacPaint.tsx`; registered in `src/data/apps.tsx`)
-  - 400×268 canvas, offscreen canvas for persistent pixels, Bresenham line for smooth strokes
-  - Flood-fill (bucket), rectangle and line with live preview via snapshot
-  - Toolbar: tool selector, ink/paper color toggle, 1/2/4px brush sizes, NEW button
-  - Status bar showing active tool, brush size, color, and cursor coordinates
+- [~] **MacPaint** - built, then removed in Phase 17 (2026-08-24)
 
 #### Phase 8: New Apps
-- [x] **Music Player** - Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`; registered in `src/data/apps.tsx` as `Jukebox`)
-  - 6 curated tracks with retro Mac-themed metadata
-  - 6 unique pixel-art SVG album artworks per track
-  - Play/Pause, Prev (restarts track if >3s elapsed), Next controls
-  - Click-to-seek progress bar with elapsed/total time display
-  - Tracklist with active-track highlight and live ♪ indicator
-  - Auto-advances to next track on completion, loops back to start
+- [~] **Music Player** - built, then removed in Phase 17 (2026-08-24)
 
 #### Phase 9: New Apps
 - [x] **Clock** - Live analog + digital clock in a small window, classic Mac font, ticking second hand drawn with SVG rects (`src/components/sections/Clock.tsx`; registered in `src/data/apps.tsx`)
@@ -237,6 +224,13 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
   - `openWindowCount` counts every open window plus the Games folder; minimized windows still count (they are open, just parked in the dock)
   - `handleQuit` renamed to `closeAllWindows` and now also closes the Games folder window, so Cmd+Q and the Apple menu Quit clear the desktop completely rather than leaving the folder behind
   - Styled with the existing `mac-button` + `mac-invert-hover` idiom: 1px ink border, hard shadow, no radius, full invert on hover
+
+#### Phase 17: Removed Jukebox, MacPaint and Photos (2026-08-24)
+- [x] **Three apps deleted**: `MusicPlayer.tsx` (Jukebox), `MacPaint.tsx` and `PhotoViewer.tsx` are gone, along with their `MusicIcon`, `MacPaintIcon` and `PhotoIcon` components and their `music`, `macpaint` and `photos` entries in `src/data/apps.tsx`
+  - The registry drives the desktop, dock, menus and the terminal's `open` command, so no call sites needed touching
+  - `Finder.tsx`: the three files dropped from the `REPO_TREE` listing so the fake filesystem still matches the real one
+  - `Desktop.tsx`: `getInitialActiveId` now validates saved ids against `APPS` before using them, so a stored default layout naming a removed app no longer leaves the desktop with an active window that does not exist
+  - The terminal's virtual `Photos/` folder is filesystem content rather than the app, so it stays
 
 ---
 

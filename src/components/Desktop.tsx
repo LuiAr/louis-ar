@@ -85,8 +85,14 @@ function buildInitialState(defaultSetup: StoredDefaultSetup | null): Record<stri
 }
 
 function getInitialActiveId(defaultSetup: StoredDefaultSetup | null) {
-  if (defaultSetup?.activeId) return defaultSetup.activeId;
-  if (defaultSetup?.openAppIds[0]) return defaultSetup.openAppIds[0];
+  // A saved default setup can name an app that no longer exists (the user stored
+  // a layout, then an app was removed from the registry), so ignore stale ids
+  // rather than making a window that is not there the active one.
+  const known = (id: string) => APPS.some((a) => a.id === id);
+  const savedActive = defaultSetup?.activeId;
+  if (savedActive && known(savedActive)) return savedActive;
+  const firstOpen = defaultSetup?.openAppIds.find(known);
+  if (firstOpen) return firstOpen;
   return APPS.find((a) => a.initiallyOpen)?.id ?? APPS[0].id;
 }
 
