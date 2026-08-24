@@ -232,6 +232,14 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
   - `Desktop.tsx`: `getInitialActiveId` now validates saved ids against `APPS` before using them, so a stored default layout naming a removed app no longer leaves the desktop with an active window that does not exist
   - The terminal's virtual `Photos/` folder is filesystem content rather than the app, so it stays
 
+#### Phase 18: CI runtime bump for the Node 20 deprecation (2026-08-24)
+- [x] **`.github/workflows/deploy.yml` moved off Node 20**: the runners now force JavaScript actions built for Node 20 onto Node 24, and Node 20 is removed from the runners entirely in September 2026
+  - `actions/checkout@v4` → `actions/checkout@v7` and `actions/setup-node@v4` → `actions/setup-node@v7`; every major from v5 onward declares `using: node24`, so the forced-runtime warning is gone
+  - Build `node-version` bumped from `"20"` (end of life since April 2026) to `"24"`, the current Active LTS
+  - Verified locally on Node 24.19.0: clean `npm install` plus `npm run build` produces the same five static routes with no new lint or type errors
+  - `opencode.yml` needed no change (already on `actions/checkout@v6`), and `peaceiris/actions-gh-pages@v4` was retagged to `node24` in v4.1.0, so the deploy step is clear too
+  - None of the breaking changes in those majors apply here: checkout v7 only blocks fork-PR checkouts under `pull_request_target`/`workflow_run` (this workflow runs on `push`), setup-node v6 narrows automatic caching to npm (`cache: "npm"` is set explicitly) and v7 drops the dummy `NODE_AUTH_TOKEN` export (unused)
+
 ---
 
 ## Session End Routine
