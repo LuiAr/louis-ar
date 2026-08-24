@@ -31,6 +31,7 @@ Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js
 - Hover = full invert (`mac-invert-hover` class), no rounded states
 - All animations must respect `usePrefersReducedMotion`
 - **NEVER use em dashes anywhere.** Not in site copy, not in JSX strings, not in code comments, not in this file, not in commit messages or PR descriptions. Use a colon, a comma, parentheses, or restructure the sentence. For UI separators use `·`, for date ranges use `→`, for list bullets use `•`, for empty table cells use `-`.
+- **NEVER append generated-by footers or session links.** No `🤖 Generated with Claude Code` line, no `https://claude.ai/code/session_...` URL, no `Claude-Session:` trailer. Not in PR titles or bodies, not in GitHub comments, not in commit messages, not in code. A `Co-Authored-By:` trailer on a commit is fine; the promotional footer is not.
 
 ## Design Tokens (key colors)
 - `--color-cream: #f5f0e8` - page background
@@ -219,7 +220,7 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
 - [x] **React correctness**: `nextId.current++` no longer runs inside a `setLines` updater (it dropped a boot line under React's double-invoked updaters); the boot banner is driven by a `bootLine` state counter with deterministic ids
 
 #### Phase 16: Close All button (2026-08-24)
-- [x] **Close All** control in `Desktop.tsx`, pinned to the bottom-right of the desktop just above the dock
+- [x] **Close All** control in `Desktop.tsx`, centered horizontally just above the dock (was bottom-right until Phase 19)
   - Only rendered while at least one window is open; label carries a live count, e.g. `✕ Close All (4)`
   - `openWindowCount` counts every open window plus the Games folder; minimized windows still count (they are open, just parked in the dock)
   - `handleQuit` renamed to `closeAllWindows` and now also closes the Games folder window, so Cmd+Q and the Apple menu Quit clear the desktop completely rather than leaving the folder behind
@@ -231,6 +232,42 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
   - `Finder.tsx`: the three files dropped from the `REPO_TREE` listing so the fake filesystem still matches the real one
   - `Desktop.tsx`: `getInitialActiveId` now validates saved ids against `APPS` before using them, so a stored default layout naming a removed app no longer leaves the desktop with an active window that does not exist
   - The terminal's virtual `Photos/` folder is filesystem content rather than the app, so it stays
+
+#### Phase 18: CI runtime bump for the Node 20 deprecation (2026-08-24)
+- [x] **`.github/workflows/deploy.yml` moved off Node 20**: the runners now force JavaScript actions built for Node 20 onto Node 24, and Node 20 is removed from the runners entirely in September 2026
+  - `actions/checkout@v4` → `actions/checkout@v7` and `actions/setup-node@v4` → `actions/setup-node@v7`; every major from v5 onward declares `using: node24`, so the forced-runtime warning is gone
+  - Build `node-version` bumped from `"20"` (end of life since April 2026) to `"24"`, the current Active LTS
+  - Verified locally on Node 24.19.0: clean `npm install` plus `npm run build` produces the same five static routes with no new lint or type errors
+  - `opencode.yml` needed no change (already on `actions/checkout@v6`), and `peaceiris/actions-gh-pages@v4` was retagged to `node24` in v4.1.0, so the deploy step is clear too
+  - None of the breaking changes in those majors apply here: checkout v7 only blocks fork-PR checkouts under `pull_request_target`/`workflow_run` (this workflow runs on `push`), setup-node v6 narrows automatic caching to npm (`cache: "npm"` is set explicitly) and v7 drops the dummy `NODE_AUTH_TOKEN` export (unused)
+
+#### Phase 19: Close All centered above the dock (2026-08-24)
+- [x] **Close All moved from the bottom-right corner to the horizontal center** of the desktop, still sitting just above the dock (it became the third button of the control strip in Phase 20)
+  - The button is now wrapped in a full-width `absolute bottom-2 left-0 right-0 flex justify-center` row rather than being positioned with `right-2`
+  - The wrapper carries `pointer-events-none` and the button `pointer-events-auto`, so that full-width strip does not swallow clicks and window drags across the bottom of the desktop
+  - Centering with a flex wrapper instead of `left-1/2 -translate-x-1/2` keeps the button's own `transform` free for the `mac-button` hover lift and active press
+  - Verified in a headless Chromium run at 1280x800: button center lands exactly on the viewport center, and `elementFromPoint` in the button's row well to its left still returns the desktop, not the wrapper
+
+#### Phase 20: Desktop control strip (2026-08-24)
+- [x] **The lone Close All button became a three-button control strip** above the dock: `▤ Tidy Windows` · `↺ Reset Layout` · `✕ Close All (n)`
+  - `StripButton` local component in `Desktop.tsx` carries the shared `mac-button` + `mac-invert-hover` styling, the icon slot and the disabled treatment
+  - Disabled buttons are greyed with `text-[var(--color-ink-muted)]` and the `disabled` attribute, matching how `MenuBar` greys out unavailable items, plus `pointer-events-none` so the `mac-button` hover lift cannot fire on a button that does nothing
+  - The strip renders unconditionally now (it used to appear only with a window open), because `Reset Layout` is exactly what you want on an empty desktop. `Tidy Windows` disables at `visibleWindowCount === 0` and `Close All` at `openWindowCount === 0`
+  - `role="toolbar"` with an `aria-label` on the wrapper
+- [x] **`Tidy Windows`**: cascades every visible window down and right from the top-left of the desktop, classic "Clean Up" style
+  - Sorted by `zIndex` ascending so the window drawn on top lands deepest in the cascade, which is what makes a cascade read correctly
+  - Sizes are left as the user set them and only clamped when a window cannot fit the desktop at all; the cascade restarts at the top-left once the next slot would push a window off the edge, so any number of windows stays on screen
+  - `TIDY_BOTTOM_GAP` keeps a tidied window clear of the control strip itself
+  - The Games folder is a real window but is not in `APPS`, so it is tracked under a `GAMES_FOLDER_ID` key and slotted into the cascade at its own `gamesZ` depth
+  - Tidied positions are written through to `layoutRef` and `localStorage`, so a tidy survives a reload
+- [x] **`Reset Layout`**: forgets both `louis-ar-windows-v6` and `louis-ar-default-setup-v1`, returns every window to its registry defaults, and puts the desktop back to just the `initiallyOpen` windows
+  - Named `Reset Layout` rather than `Restore Defaults` so it does not collide with the existing `Restore Defaults` button in System Preferences, which resets a different thing (the desktop pattern and click sounds)
+  - Clears `layoutRef`, resets `topZ`, and clears `defaultSetup` state, so a saved terminal `set-default` layout stops applying immediately rather than on the next reload
+- [x] **`DraggableWindow` gained an optional `layoutNonce` prop** (`src/components/ui/DraggableWindow.tsx`)
+  - A mounted window owns its position (Motion values) and its size (local state), so the parent could not move it by changing props alone. Bumping the nonce is the signal to re-read `defaultPosition`/`defaultWidth`/`defaultHeight` and to drop the zoomed state
+  - Guarded with a `hasMounted` ref so mount does not re-apply what is already the initial value, and deliberately keyed on the nonce alone: a change in the `default*` props on its own must never yank a window out from under the user
+  - `Desktop.tsx` holds the pushed layout in `overrideLayout`, which takes precedence over `defaultSetup?.layout` and then `storedLayout`
+- [x] **Verified end to end in headless Chromium at 1280x800**: dragged a window off-position, tidied (windows landed at desktop-relative 16,16 / 42,42 / 68,68 / 94,94, a clean 26px step, front-most deepest), reset (layout matched the load-time geometry exactly and both localStorage keys were gone), closed all (Tidy and Close All greyed, Reset still live), reset again from the empty desktop (all four default windows back). Both new glyphs render in Space Mono rather than falling back to tofu, and `elementFromPoint` beside the strip still returns the desktop
 
 ---
 
@@ -245,6 +282,6 @@ At the end of every task, Claude must always:
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
 ## Top 3 Ideas (2026-08-24)
-1. **Terminal pipes and aliases** - The shell now has a filesystem and a tokenizer, so `grep`, `wc`, `head` and a single `|` are a small step from here, and `alias`/`.zshrc` sourcing would make the dotfile in `HOME` mean something.
-2. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces; MobileTerminal can be a read-only boot log with fun facts, and MobileSnake (D-pad controls) turns the phone into a mini game console.
-3. **System-wide theming in System Preferences** - Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.
+1. **Tidy Windows and Reset Layout in the Window menu** - The control strip has them, and the classic Mac put "Clean Up Window" in a menu; wiring both into `MENUS` plus the `MenuAction` union would make them keyboard reachable and discoverable without hunting for the strip.
+2. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces, and the only place where mobile still borrows desktop components wholesale instead of getting a touch-native view.
+3. **Terminal pipes and aliases** - The shell already has a virtual filesystem and a quote-aware tokenizer, so `grep`, `wc`, `head` and a single `|` are a short hop, and sourcing `.zshrc` for `alias` would finally give that dotfile a purpose.
