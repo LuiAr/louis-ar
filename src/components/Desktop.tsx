@@ -727,18 +727,23 @@ export default function Desktop() {
           })}
         </AnimatePresence>
 
-        {/* Close all open windows - sits just above the dock */}
+        {/* Close all open windows - centered just above the dock. The wrapper
+            spans the full width so the button stays centered, so it has to be
+            pointer-events-none or it would swallow clicks and window drags
+            across that whole strip of desktop. */}
         {openWindowCount > 0 && (
-          <button
-            onClick={closeAllWindows}
-            className="mac-button mac-invert-hover absolute bottom-2 right-2 z-[9999] gap-1.5 px-2 py-0.5 text-[10px] leading-none"
-            style={{ fontFamily: "var(--font-space-mono)" }}
-            aria-label={`Close all ${openWindowCount} open window${openWindowCount === 1 ? "" : "s"}`}
-            title="Close all open windows"
-          >
-            <span aria-hidden="true">✕</span>
-            Close All ({openWindowCount})
-          </button>
+          <div className="absolute bottom-2 left-0 right-0 z-[9999] flex justify-center pointer-events-none">
+            <button
+              onClick={closeAllWindows}
+              className="mac-button mac-invert-hover pointer-events-auto gap-1.5 px-2 py-0.5 text-[10px] leading-none"
+              style={{ fontFamily: "var(--font-space-mono)" }}
+              aria-label={`Close all ${openWindowCount} open window${openWindowCount === 1 ? "" : "s"}`}
+              title="Close all open windows"
+            >
+              <span aria-hidden="true">✕</span>
+              Close All ({openWindowCount})
+            </button>
+          </div>
         )}
       </div>
 

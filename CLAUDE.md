@@ -219,7 +219,7 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
 - [x] **React correctness**: `nextId.current++` no longer runs inside a `setLines` updater (it dropped a boot line under React's double-invoked updaters); the boot banner is driven by a `bootLine` state counter with deterministic ids
 
 #### Phase 16: Close All button (2026-08-24)
-- [x] **Close All** control in `Desktop.tsx`, pinned to the bottom-right of the desktop just above the dock
+- [x] **Close All** control in `Desktop.tsx`, centered horizontally just above the dock (was bottom-right until Phase 19)
   - Only rendered while at least one window is open; label carries a live count, e.g. `✕ Close All (4)`
   - `openWindowCount` counts every open window plus the Games folder; minimized windows still count (they are open, just parked in the dock)
   - `handleQuit` renamed to `closeAllWindows` and now also closes the Games folder window, so Cmd+Q and the Apple menu Quit clear the desktop completely rather than leaving the folder behind
@@ -239,6 +239,13 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
   - Verified locally on Node 24.19.0: clean `npm install` plus `npm run build` produces the same five static routes with no new lint or type errors
   - `opencode.yml` needed no change (already on `actions/checkout@v6`), and `peaceiris/actions-gh-pages@v4` was retagged to `node24` in v4.1.0, so the deploy step is clear too
   - None of the breaking changes in those majors apply here: checkout v7 only blocks fork-PR checkouts under `pull_request_target`/`workflow_run` (this workflow runs on `push`), setup-node v6 narrows automatic caching to npm (`cache: "npm"` is set explicitly) and v7 drops the dummy `NODE_AUTH_TOKEN` export (unused)
+
+#### Phase 19: Close All centered above the dock (2026-08-24)
+- [x] **Close All moved from the bottom-right corner to the horizontal center** of the desktop, still sitting just above the dock
+  - The button is now wrapped in a full-width `absolute bottom-2 left-0 right-0 flex justify-center` row rather than being positioned with `right-2`
+  - The wrapper carries `pointer-events-none` and the button `pointer-events-auto`, so that full-width strip does not swallow clicks and window drags across the bottom of the desktop
+  - Centering with a flex wrapper instead of `left-1/2 -translate-x-1/2` keeps the button's own `transform` free for the `mac-button` hover lift and active press
+  - Verified in a headless Chromium run at 1280x800: button center lands exactly on the viewport center, and `elementFromPoint` in the button's row well to its left still returns the desktop, not the wrapper
 
 ---
 
