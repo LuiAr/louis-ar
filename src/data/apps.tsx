@@ -6,9 +6,6 @@ import ContactSection from "@/components/sections/ContactSection";
 import DinoGame from "@/components/sections/DinoGame";
 import SnakeGame from "@/components/sections/SnakeGame";
 import Terminal from "@/components/sections/Terminal";
-import PhotoViewer from "@/components/sections/PhotoViewer";
-import MacPaint from "@/components/sections/MacPaint";
-import MusicPlayer from "@/components/sections/MusicPlayer";
 import Clock from "@/components/sections/Clock";
 import StickyNote from "@/components/sections/StickyNote";
 import Calculator from "@/components/sections/Calculator";
@@ -115,54 +112,6 @@ function DinoIcon() {
       <rect x="13" y="22" width="3" height="4" fill="currentColor" />
       {/* Ground */}
       <rect x="2" y="26" width="24" height="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function PhotoIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-      {/* Frame */}
-      <rect x="2" y="4" width="24" height="18" stroke="currentColor" strokeWidth="1.5" fill="var(--color-cream)" />
-      {/* Mountain / landscape */}
-      <polygon points="2,22 9,12 15,18 20,13 26,22" fill="currentColor" />
-      {/* Sun */}
-      <rect x="18" y="7" width="5" height="5" stroke="currentColor" strokeWidth="1" fill="var(--color-cream-dark)" />
-      {/* Film strip bottom */}
-      <rect x="2" y="22" width="24" height="4" fill="currentColor" />
-      <rect x="4" y="23" width="3" height="2" fill="var(--color-cream)" />
-      <rect x="9" y="23" width="3" height="2" fill="var(--color-cream)" />
-      <rect x="14" y="23" width="3" height="2" fill="var(--color-cream)" />
-      <rect x="19" y="23" width="3" height="2" fill="var(--color-cream)" />
-    </svg>
-  );
-}
-
-function MacPaintIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-      {/* Canvas */}
-      <rect x="2" y="3" width="20" height="17" fill="var(--color-cream)" stroke="currentColor" strokeWidth="1.5" />
-      {/* Zigzag drawing on canvas */}
-      <polyline points="4,16 7,9 11,15 14,9 18,13" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      {/* Pencil */}
-      <rect x="22" y="3" width="3" height="12" fill="currentColor" transform="rotate(35, 22, 3)" />
-      <polygon points="20,22 23,22 21.5,26" fill="currentColor" />
-    </svg>
-  );
-}
-
-function MusicIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-      {/* Vinyl record */}
-      <circle cx="14" cy="16" r="11" fill="var(--color-cream-dark)" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="14" cy="16" r="5" fill="currentColor" />
-      <circle cx="14" cy="16" r="2" fill="var(--color-cream)" />
-      {/* Music note above */}
-      <rect x="17" y="4" width="2" height="8" fill="currentColor" />
-      <rect x="11" y="4" width="8" height="2" fill="currentColor" />
-      <rect x="9" y="10" width="4" height="3" fill="currentColor" />
     </svg>
   );
 }
@@ -410,45 +359,6 @@ export const APPS: AppConfig[] = [
     inDock: false,
     Icon: TerminalIcon,
     Content: Terminal,
-  },
-  {
-    id: "photos",
-    title: "Photos",
-    menuLabel: "Photos",
-    dockLabel: "Photos",
-    defaultPosition: { x: 260, y: 70 },
-    defaultWidth: 520,
-    defaultHeight: 420,
-    initiallyOpen: false,
-    inDock: false,
-    Icon: PhotoIcon,
-    Content: PhotoViewer,
-  },
-  {
-    id: "macpaint",
-    title: "MacPaint",
-    menuLabel: "MacPaint",
-    dockLabel: "MacPaint",
-    defaultPosition: { x: 180, y: 65 },
-    defaultWidth: 560,
-    defaultHeight: 400,
-    initiallyOpen: false,
-    inDock: false,
-    Icon: MacPaintIcon,
-    Content: MacPaint,
-  },
-  {
-    id: "music",
-    title: "Jukebox",
-    menuLabel: "Jukebox",
-    dockLabel: "Jukebox",
-    defaultPosition: { x: 350, y: 90 },
-    defaultWidth: 480,
-    defaultHeight: 420,
-    initiallyOpen: false,
-    inDock: false,
-    Icon: MusicIcon,
-    Content: MusicPlayer,
   },
   {
     id: "clock",
