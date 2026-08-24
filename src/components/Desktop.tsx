@@ -266,6 +266,11 @@ export default function Desktop() {
   const dockApps = APPS.filter((a) => a.inDock);
   const desktopIconApps = APPS.filter((a) => !a.inDock && !GAME_IDS.has(a.id));
 
+  // Every window currently open, including the Games folder. Minimized windows
+  // still count: they are open, just parked in the dock.
+  const openWindowCount =
+    APPS.filter((a) => states[a.id]?.isOpen).length + (gamesOpen ? 1 : 0);
+
   // Click sounds - plays a retro Mac beep when prefs.sounds is enabled
   useEffect(() => {
     if (!prefs.sounds) return;
@@ -481,7 +486,7 @@ export default function Desktop() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [states]);
 
-  function handleQuit() {
+  function closeAllWindows() {
     setStates((prev) => {
       const next = { ...prev };
       APPS.forEach((a) => {
@@ -489,6 +494,8 @@ export default function Desktop() {
       });
       return next;
     });
+    setGamesOpen(false);
+    setGamesActive(false);
   }
 
   // Keyboard shortcuts
@@ -510,7 +517,7 @@ export default function Desktop() {
           break;
         case "KeyQ":
           e.preventDefault();
-          handleQuit();
+          closeAllWindows();
           break;
         case "Backquote": {
           const openWindows = APPS.filter(
@@ -527,7 +534,7 @@ export default function Desktop() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-    // closeWindow/toggleMinimize/focusWindow/handleQuit are recreated each render but all
+    // closeWindow/toggleMinimize/focusWindow/closeAllWindows are recreated each render but all
     // depend only on `states` and `activeId`, which ARE in the deps array - adding the
     // functions themselves would be redundant and noisy.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -543,7 +550,7 @@ export default function Desktop() {
         setShowAbout(true);
         break;
       case "quit":
-        handleQuit();
+        closeAllWindows();
         break;
       case "close":
         if (states[activeId]?.isOpen) closeWindow(activeId);
@@ -713,6 +720,20 @@ export default function Desktop() {
             );
           })}
         </AnimatePresence>
+
+        {/* Close all open windows - sits just above the dock */}
+        {openWindowCount > 0 && (
+          <button
+            onClick={closeAllWindows}
+            className="mac-button mac-invert-hover absolute bottom-2 right-2 z-[9999] gap-1.5 px-2 py-0.5 text-[10px] leading-none"
+            style={{ fontFamily: "var(--font-space-mono)" }}
+            aria-label={`Close all ${openWindowCount} open window${openWindowCount === 1 ? "" : "s"}`}
+            title="Close all open windows"
+          >
+            <span aria-hidden="true">✕</span>
+            Close All ({openWindowCount})
+          </button>
+        )}
       </div>
 
       {/* Dock - portfolio apps only */}

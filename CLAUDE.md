@@ -231,6 +231,13 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
   - Output is selectable now, so `focusTerminal` skips refocusing while a selection is live
 - [x] **React correctness**: `nextId.current++` no longer runs inside a `setLines` updater (it dropped a boot line under React's double-invoked updaters); the boot banner is driven by a `bootLine` state counter with deterministic ids
 
+#### Phase 16: Close All button (2026-08-24)
+- [x] **Close All** control in `Desktop.tsx`, pinned to the bottom-right of the desktop just above the dock
+  - Only rendered while at least one window is open; label carries a live count, e.g. `✕ Close All (4)`
+  - `openWindowCount` counts every open window plus the Games folder; minimized windows still count (they are open, just parked in the dock)
+  - `handleQuit` renamed to `closeAllWindows` and now also closes the Games folder window, so Cmd+Q and the Apple menu Quit clear the desktop completely rather than leaving the folder behind
+  - Styled with the existing `mac-button` + `mac-invert-hover` idiom: 1px ink border, hard shadow, no radius, full invert on hover
+
 ---
 
 ## Session End Routine
