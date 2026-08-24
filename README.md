@@ -1,4 +1,4 @@
-# louis-ar — Personal Portfolio
+# Personal Portfolio
 
 Personal portfolio website with a 1984 Macintosh-inspired UI.
 
