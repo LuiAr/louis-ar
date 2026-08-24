@@ -10,8 +10,9 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Louis Ar",
-  description: "Personal portfolio showcasing projects and experience",
+  title: "Louis Arbey",
+  description:
+    "Data Scientist in Stockholm building AI and data solutions for large-scale companies.",
 };
 
 export default function RootLayout({

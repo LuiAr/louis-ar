@@ -83,7 +83,7 @@ interface MenuBarProps {
   onAction?: (action: MenuAction) => void;
   checkedActions?: Set<MenuAction>;
   disabledActions?: Set<MenuAction>;
-  /** Window items for the View and Window menus — built by the parent from the app registry */
+  /** Window items for the View and Window menus - built by the parent from the app registry */
   windowMenuItems?: MenuItem[];
 }
 
@@ -303,7 +303,7 @@ export default function MenuBar({
       className="relative z-[9999] flex-shrink-0 flex items-center h-[22px] bg-[var(--color-cream)] border-b-2 border-[var(--color-ink)]"
       style={{ fontFamily: "var(--font-body)" }}
     >
-      {/* Pear logo — Apple menu */}
+      {/* Pear logo - Apple menu */}
       <div className="relative h-full">
         <button
           onClick={() => toggleMenu("apple")}

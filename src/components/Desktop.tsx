@@ -55,7 +55,7 @@ function saveLayout(id: string, data: StoredLayout) {
     const current = loadLayout();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, [id]: data }));
   } catch {
-    // ignore — storage may be unavailable
+    // ignore - storage may be unavailable
   }
 }
 
@@ -152,7 +152,7 @@ function GamesFolderWindow({ onOpen }: GamesFolderWindowProps) {
           fontFamily: "var(--font-space-mono)",
         }}
       >
-        {games.length} items — double-click to open
+        {games.length} items · double-click to open
       </div>
     </div>
   );
@@ -263,7 +263,7 @@ export default function Desktop() {
   const dockApps = APPS.filter((a) => a.inDock);
   const desktopIconApps = APPS.filter((a) => !a.inDock && !GAME_IDS.has(a.id));
 
-  // Click sounds — plays a retro Mac beep when prefs.sounds is enabled
+  // Click sounds - plays a retro Mac beep when prefs.sounds is enabled
   useEffect(() => {
     if (!prefs.sounds) return;
     function playClick() {
@@ -395,7 +395,7 @@ export default function Desktop() {
     }
   }
 
-  // Dock click: three-state — closed→open, minimized→restore, open→minimize
+  // Dock click: three-state - closed→open, minimized→restore, open→minimize
   function openOrFocus(id: string) {
     setGamesActive(false);
     const s = states[id];
@@ -432,7 +432,7 @@ export default function Desktop() {
     setGamesActive(true);
   }
 
-  // Menu action: never closes — opens/restores if needed, otherwise focuses
+  // Menu action: never closes - opens/restores if needed, otherwise focuses
   function showWindow(id: string) {
     const s = states[id];
     if (!s) return;
@@ -495,7 +495,7 @@ export default function Desktop() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
     // closeWindow/toggleMinimize/focusWindow/handleQuit are recreated each render but all
-    // depend only on `states` and `activeId`, which ARE in the deps array — adding the
+    // depend only on `states` and `activeId`, which ARE in the deps array - adding the
     // functions themselves would be redundant and noisy.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId, states]);
@@ -582,7 +582,7 @@ export default function Desktop() {
           "mac-desktop-bg-solid": prefs.desktopPattern === "solid",
         })}
       >
-        {/* Desktop icons — right column, non-dock apps + Games folder */}
+        {/* Desktop icons - right column, non-dock apps + Games folder */}
         <div className="absolute right-2 top-2 flex flex-col gap-0.5 z-[2] pointer-events-none">
           {/* Games folder */}
           <button
@@ -682,7 +682,7 @@ export default function Desktop() {
         </AnimatePresence>
       </div>
 
-      {/* Dock — portfolio apps only */}
+      {/* Dock - portfolio apps only */}
       <div className="flex-shrink-0 h-16 border-t-2 border-[var(--color-ink)] bg-[var(--color-cream)] flex items-center justify-center px-4 overflow-x-auto">
         <div className="flex items-center gap-1">
           {dockApps.map((app) => {

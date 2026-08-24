@@ -57,9 +57,10 @@ function ProjectIcon({ project }: { project: Project }) {
 }
 
 function StatusBadge({ status }: { status: Project["status"] }) {
-  const map = {
+  const map: Record<Project["status"], string> = {
     live: "● Live",
     "in-progress": "◐ In Progress",
+    completed: "✓ Completed",
     archived: "○ Archived",
   };
   return (

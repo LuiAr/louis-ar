@@ -4,6 +4,7 @@ import { useTypewriter } from "@/hooks/useTypewriter";
 
 const ROLES = [
   "Data Scientist",
+  "AI Consultant",
   "Data Engineer",
   "Innovation Enthusiast",
 ];
@@ -25,8 +26,8 @@ export default function HeroSection() {
       </div>
       <p className="text-[13px] text-[var(--color-ink-muted)] max-w-lg">
         Building AI solutions and data pipelines that turn messy real-world
-        data into clear insights. Currently finishing a Master&apos;s thesis
-        on 6G on-device AI for autonomous robots at RISE &amp; Husqvarna.
+        data into clear insights. Now a Data Scientist at Redfield in
+        Stockholm, consulting for large companies on AI.
       </p>
     </div>
   );

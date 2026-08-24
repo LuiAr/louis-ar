@@ -259,7 +259,7 @@ export default function Terminal() {
         )}
       </div>
       <div className="px-3 py-1 bg-[var(--color-ink)] border-t border-[var(--color-cream)] border-opacity-20 text-[10px] text-[var(--color-ink-muted)]">
-        zsh — 80x24 — UTF-8
+        zsh · 80x24 · UTF-8
       </div>
     </div>
   );

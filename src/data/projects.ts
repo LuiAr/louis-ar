@@ -4,11 +4,11 @@ export const projects: Project[] = [
   {
     id: "master-thesis",
     title: "6G On-Device AI for Robots",
-    shortDescription: "Master thesis — VLM/SLM system for autonomous navigation",
+    shortDescription: "Master thesis: VLM/SLM system for autonomous navigation",
     longDescription:
-      "Master thesis in collaboration with RISE Research Institutes of Sweden and Husqvarna. Developed a modular Vision-Language Model / Small Language Model system optimised for 6G on-device AI enabling real-time navigation of autonomous robots. Included data collection on a Husqvarna Automower.",
+      "Master thesis in collaboration with RISE Research Institutes of Sweden and Husqvarna. Built a modular Vision-Language Model / Small Language Model system optimised for 6G on-device AI, enabling real-time navigation of autonomous robots. Included data collection on a Husqvarna Automower.",
     tags: ["ai"],
-    status: "in-progress",
+    status: "completed",
     year: 2026,
     iconType: "image",
     iconSrc: "/husq_robot.png",
@@ -23,7 +23,7 @@ export const projects: Project[] = [
     title: "Self-Checkout Vision System",
     shortDescription: "Computer vision model for catering tray detection",
     longDescription:
-      "Academic project at Efrei Paris — developed a self-checkout solution for the catering industry using computer vision to detect trays. The project was selected among the six best out of 40 submissions.",
+      "Academic project at Efrei Paris: developed a self-checkout solution for the catering industry using computer vision to detect trays. The project was selected among the six best out of 40 submissions.",
     tags: ["ai"],
     status: "live",
     year: 2023,
@@ -34,10 +34,10 @@ export const projects: Project[] = [
   },
   {
     id: "qr-generator",
-    title: "Easy QR — Free QR Generator",
-    shortDescription: "Instant QR codes — no account, no expiry",
+    title: "Easy QR: Free QR Generator",
+    shortDescription: "Instant QR codes, no account, no expiry",
     longDescription:
-      "A simple, no-friction QR code generator. Paste a URL and get a scannable QR code instantly — no account required, no subscription, and the codes never expire.",
+      "A simple, no-friction QR code generator. Paste a URL and get a scannable QR code instantly, with no account required, no subscription, and codes that never expire.",
     tags: ["web"],
     status: "live",
     year: 2025,
@@ -51,7 +51,7 @@ export const projects: Project[] = [
   {
     id: "portfolio",
     title: "Portfolio Website",
-    shortDescription: "This very site — Mac OS Classic themed portfolio",
+    shortDescription: "This very site, Mac OS Classic themed portfolio",
     longDescription:
       "A personal portfolio website built with Next.js 15 and Tailwind CSS v4, featuring a 1984 Macintosh-inspired design system with pixel-perfect window chrome, animated boot sequence, and Finder-style UI patterns.",
     tags: ["web", "design"],
@@ -60,7 +60,6 @@ export const projects: Project[] = [
     iconType: "application",
     links: {
       github: "https://github.com/LuiAr/louis-ar",
-      live: "https://louisarbey.eu",
     },
     techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Motion"],
     featured: false,

@@ -105,7 +105,7 @@ export default function DraggableWindow({
       transition={{ duration: 0.15 }}
       className="mac-window flex flex-col"
     >
-      {/* Title bar — drag handle */}
+      {/* Title bar - drag handle */}
       <div
         className={cn(
           "flex-shrink-0 flex items-center h-[22px] relative border-b-2 border-[var(--color-ink)] select-none",
@@ -154,7 +154,7 @@ export default function DraggableWindow({
         </div>
       )}
 
-      {/* Resize handle — hidden when zoomed or minimized */}
+      {/* Resize handle - hidden when zoomed or minimized */}
       {!isMinimized && !isZoomed && (
         <div
           className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"

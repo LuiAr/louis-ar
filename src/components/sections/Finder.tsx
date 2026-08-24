@@ -15,7 +15,7 @@ const KIND_LABELS: Record<FileKind, string> = {
   folder: "Folder",
   document: "Document",
   application: "Application",
-  image: "JPEG Image",
+  image: "Image File",
   config: "Config File",
 };
 
@@ -133,6 +133,7 @@ const REPO_TREE: FileNode[] = [
     kind: "folder",
     children: [
       { name: ".nojekyll", kind: "config", size: "< 1 KB" },
+      { name: "husq_robot.png", kind: "image", size: "1.2 MB" },
       { name: "profile.jpeg", kind: "image", size: "52 KB" },
     ],
   },
@@ -298,7 +299,7 @@ export default function Finder() {
         }}
       >
         <span style={{ fontWeight: "bold" }}>louis-ar</span>
-        <span style={{ opacity: 0.4 }}>—</span>
+        <span style={{ opacity: 0.4 }}>·</span>
         <span style={{ opacity: 0.55, fontSize: 10 }}>
           {folders} folders,&nbsp;{files} files
         </span>
@@ -417,7 +418,7 @@ export default function Finder() {
 
               {/* Size */}
               <span style={{ width: 56, flexShrink: 0, textAlign: "right", opacity: 0.6 }}>
-                {row.node.size ?? "—"}
+                {row.node.size ?? "-"}
               </span>
             </div>
           );
@@ -438,8 +439,8 @@ export default function Finder() {
         {selectedRow ? (
           <span>
             {selectedRow.node.name}
-            {selectedRow.node.size ? ` — ${selectedRow.node.size}` : ""}
-            {" — "}
+            {selectedRow.node.size ? ` · ${selectedRow.node.size}` : ""}
+            {" · "}
             {KIND_LABELS[selectedRow.node.kind]}
           </span>
         ) : (

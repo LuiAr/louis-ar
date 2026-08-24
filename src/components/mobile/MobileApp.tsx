@@ -9,7 +9,7 @@ import ContactSection from "@/components/sections/ContactSection";
 
 const SECTIONS = [
   { id: "about",      title: "ReadMe.txt",        Content: AboutSection },
-  { id: "projects",   title: "Projects — Finder", Content: ProjectsSection },
+  { id: "projects",   title: "Projects", Content: ProjectsSection },
   { id: "experience", title: "Experience",         Content: ExperienceSection },
   { id: "contact",    title: "Get In Touch",       Content: ContactSection },
 ] as const;
