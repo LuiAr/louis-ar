@@ -51,7 +51,7 @@ function randomFood(snake: Point[]): Point {
       if (!occupied.has(y * COLS + x)) return { x, y };
     }
   }
-  // Grid completely full — return snake head so game ends naturally
+  // Grid completely full - return snake head so game ends naturally
   return snake[0];
 }
 
@@ -104,7 +104,7 @@ function drawSnake(
       ctx.fillStyle = INK;
       ctx.fillRect(px, py, CELL, CELL);
 
-      // Eyes — positioned relative to direction
+      // Eyes - positioned relative to direction
       ctx.fillStyle = CREAM;
       if (dead) {
         // X eyes when dead
@@ -126,7 +126,7 @@ function drawSnake(
         ctx.fillRect(px + 9, py + 9, 3, 3);
       }
     } else {
-      // Body segment — inset 1px for a segmented look
+      // Body segment - inset 1px for a segmented look
       ctx.fillStyle = INK;
       ctx.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
     }
@@ -235,7 +235,7 @@ export default function SnakeGame() {
             g.state = "dead";
             if (g.score > g.highScore) g.highScore = g.score;
           } else {
-            // Self collision — tail is about to move so exclude it
+            // Self collision - tail is about to move so exclude it
             const bodyToCheck = g.snake.slice(0, -1);
             const hitSelf = bodyToCheck.some((s) => s.x === nx && s.y === ny);
             if (hitSelf) {
@@ -297,7 +297,7 @@ export default function SnakeGame() {
       const isArrow = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code);
 
       if (!isArrow) return;
-      // Don't steal arrow keys from text inputs — they need them for cursor movement
+      // Don't steal arrow keys from text inputs - they need them for cursor movement
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       e.preventDefault();
@@ -318,7 +318,7 @@ export default function SnakeGame() {
         return;
       }
 
-      // Direction change — prevent 180° reversal
+      // Direction change - prevent 180° reversal
       if (e.code === "ArrowUp" && g.dir !== "down") g.nextDir = "up";
       else if (e.code === "ArrowDown" && g.dir !== "up") g.nextDir = "down";
       else if (e.code === "ArrowLeft" && g.dir !== "right") g.nextDir = "left";

@@ -6,7 +6,7 @@ export type ProjectTag =
   | "fullstack"
   | "ai";
 
-export type ProjectStatus = "live" | "in-progress" | "archived";
+export type ProjectStatus = "live" | "in-progress" | "completed" | "archived";
 
 export interface Project {
   id: string;

@@ -393,7 +393,7 @@ export default function PhotoViewer() {
           </>
         ) : (
           <span className="font-mono text-[10px] text-[var(--color-ink-muted)]">
-            {PHOTOS.length} items — click to view
+            {PHOTOS.length} items · click to view
           </span>
         )}
       </div>

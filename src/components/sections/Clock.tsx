@@ -98,7 +98,7 @@ export default function Clock() {
   if (!now) {
     return (
       <div className="flex items-center justify-center h-full" style={{ color: "var(--color-ink-muted)" }}>
-        —
+        ··
       </div>
     );
   }

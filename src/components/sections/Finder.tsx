@@ -15,7 +15,7 @@ const KIND_LABELS: Record<FileKind, string> = {
   folder: "Folder",
   document: "Document",
   application: "Application",
-  image: "JPEG Image",
+  image: "Image File",
   config: "Config File",
 };
 
@@ -64,8 +64,8 @@ const REPO_TREE: FileNode[] = [
               { name: "ContactSection.tsx", kind: "document", size: "4 KB" },
               { name: "DinoGame.tsx", kind: "application", size: "12 KB" },
               { name: "DynamicHero.tsx", kind: "document", size: "4 KB" },
-              { name: "ExperienceSection.tsx", kind: "document", size: "4 KB" },
-              { name: "Finder.tsx", kind: "application", size: "9 KB" },
+              { name: "ExperienceSection.tsx", kind: "document", size: "5 KB" },
+              { name: "Finder.tsx", kind: "application", size: "15 KB" },
               { name: "HeroSection.tsx", kind: "document", size: "4 KB" },
               { name: "MacPaint.tsx", kind: "application", size: "12 KB" },
               { name: "MusicPlayer.tsx", kind: "application", size: "12 KB" },
@@ -74,7 +74,7 @@ const REPO_TREE: FileNode[] = [
               { name: "SnakeGame.tsx", kind: "application", size: "12 KB" },
               { name: "StickyNote.tsx", kind: "application", size: "12 KB" },
               { name: "SystemPreferences.tsx", kind: "application", size: "12 KB" },
-              { name: "Terminal.tsx", kind: "application", size: "8 KB" },
+              { name: "Terminal.tsx", kind: "application", size: "31 KB" },
             ],
           },
           {
@@ -88,7 +88,7 @@ const REPO_TREE: FileNode[] = [
             ],
           },
           { name: "ClientLayout.tsx", kind: "document", size: "4 KB" },
-          { name: "Desktop.tsx", kind: "document", size: "20 KB" },
+          { name: "Desktop.tsx", kind: "document", size: "27 KB" },
           { name: "DynamicClientLayout.tsx", kind: "document", size: "4 KB" },
         ],
       },
@@ -96,7 +96,7 @@ const REPO_TREE: FileNode[] = [
         name: "data",
         kind: "folder",
         children: [
-          { name: "apps.tsx", kind: "document", size: "20 KB" },
+          { name: "apps.tsx", kind: "document", size: "18 KB" },
           { name: "experience.ts", kind: "document", size: "4 KB" },
           { name: "projects.ts", kind: "document", size: "4 KB" },
         ],
@@ -133,10 +133,11 @@ const REPO_TREE: FileNode[] = [
     kind: "folder",
     children: [
       { name: ".nojekyll", kind: "config", size: "< 1 KB" },
+      { name: "husq_robot.png", kind: "image", size: "1.2 MB" },
       { name: "profile.jpeg", kind: "image", size: "52 KB" },
     ],
   },
-  { name: "CLAUDE.md", kind: "document", size: "20 KB" },
+  { name: "CLAUDE.md", kind: "document", size: "18 KB" },
   { name: "next.config.ts", kind: "config", size: "4 KB" },
   { name: "package.json", kind: "config", size: "4 KB" },
   { name: "tsconfig.json", kind: "config", size: "4 KB" },
@@ -298,7 +299,7 @@ export default function Finder() {
         }}
       >
         <span style={{ fontWeight: "bold" }}>louis-ar</span>
-        <span style={{ opacity: 0.4 }}>—</span>
+        <span style={{ opacity: 0.4 }}>·</span>
         <span style={{ opacity: 0.55, fontSize: 10 }}>
           {folders} folders,&nbsp;{files} files
         </span>
@@ -417,7 +418,7 @@ export default function Finder() {
 
               {/* Size */}
               <span style={{ width: 56, flexShrink: 0, textAlign: "right", opacity: 0.6 }}>
-                {row.node.size ?? "—"}
+                {row.node.size ?? "-"}
               </span>
             </div>
           );
@@ -438,8 +439,8 @@ export default function Finder() {
         {selectedRow ? (
           <span>
             {selectedRow.node.name}
-            {selectedRow.node.size ? ` — ${selectedRow.node.size}` : ""}
-            {" — "}
+            {selectedRow.node.size ? ` · ${selectedRow.node.size}` : ""}
+            {" · "}
             {KIND_LABELS[selectedRow.node.kind]}
           </span>
         ) : (

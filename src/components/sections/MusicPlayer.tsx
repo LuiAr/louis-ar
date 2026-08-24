@@ -206,7 +206,7 @@ export default function MusicPlayer() {
               <button
                 className="w-full h-3 border-2 border-[var(--color-ink)] cursor-pointer bg-[var(--color-cream-dark)]"
                 onClick={handleProgressClick}
-                aria-label={`Seek — ${fmt(elapsed)} of ${fmt(track.duration)}`}
+                aria-label={`Seek: ${fmt(elapsed)} of ${fmt(track.duration)}`}
                 aria-valuenow={Math.round(elapsed)}
                 aria-valuemin={0}
                 aria-valuemax={track.duration}

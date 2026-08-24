@@ -27,9 +27,9 @@ export default function ContactSection() {
       <div className="text-center space-y-2">
         <p className="text-[13px] font-bold">Let&apos;s work together</p>
         <p className="text-[12px] text-[var(--color-ink-muted)]">
-          Open to new opportunities, collaborations,
+          Always up for a conversation about AI,
           <br />
-          and interesting projects.
+          data, and interesting projects.
         </p>
       </div>
 

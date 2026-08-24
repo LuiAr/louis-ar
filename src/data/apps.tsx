@@ -304,7 +304,7 @@ export interface AppConfig {
  * 1. Create its content component in src/components/sections/ (or src/apps/)
  * 2. Create its dock icon component above
  * 3. Add an entry here
- * That's it — the dock, menus, and window management update automatically.
+ * That's it - the dock, menus, and window management update automatically.
  */
 export const APPS: AppConfig[] = [
   {
@@ -335,7 +335,7 @@ export const APPS: AppConfig[] = [
   },
   {
     id: "projects",
-    title: "Projects — Finder",
+    title: "Projects",
     menuLabel: "Projects",
     dockLabel: "Projects",
     defaultPosition: { x: 134, y: 425 },

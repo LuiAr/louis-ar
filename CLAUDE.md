@@ -1,46 +1,48 @@
-# louis-ar — Portfolio Website
+# louis-ar - Portfolio Website
 
 ## Project Overview
-Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js 15 (static export), Tailwind CSS v4, and Motion v12. Deployed to GitHub Pages at `https://luiar.github.io/louis-ar`.
+Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js 15 (static export), Tailwind CSS v4, and Motion v12. Deployed to GitHub Pages and served at `https://louisarbey.eu`.
 
 ## Stack
-- **Next.js 15** — App Router, TypeScript, `output: "export"` for static GitHub Pages
-- **Tailwind CSS v4** — CSS-first config via `@theme {}` in `globals.css`, no `tailwind.config.js`
-- **Motion v12** — import from `motion/react`, never `framer-motion`
-- **clsx + tailwind-merge** — via `src/lib/cn.ts`
+- **Next.js 15** - App Router, TypeScript, `output: "export"` for static GitHub Pages
+- **Tailwind CSS v4** - CSS-first config via `@theme {}` in `globals.css`, no `tailwind.config.js`
+- **Motion v12** - import from `motion/react`, never `framer-motion`
+- **clsx + tailwind-merge** - via `src/lib/cn.ts`
 
 ## Key Config
-- `basePath: "/louis-ar"` in `next.config.ts` — required for GitHub Pages sub-path
+- No `basePath` in `next.config.ts`. The site is served from the custom domain root (`louisarbey.eu`), not the `/louis-ar` sub-path, so asset paths are plain absolute paths like `/profile.jpeg`. Do not reintroduce `basePath` unless the custom domain goes away.
 - All design tokens live in `src/app/globals.css` inside `@theme {}`
 - Font: Space Mono via `next/font/google` (variable: `--font-space-mono`)
 
 ## Architecture
-- `src/components/ui/` — MacWindow, TitleBar, MenuBar (core primitives)
-- `src/components/sections/` — one file per page section
-- `src/components/animations/` — FadeInWhenVisible, StaggerChildren, TiltCard
-- `src/hooks/` — useTypewriter, useBootSequence, usePrefersReducedMotion
-- `src/data/` — projects.ts, experience.ts (edit these to update content)
-- `src/types/` — TypeScript interfaces for Project and ExperienceEntry
+- `src/components/ui/` - MacWindow, TitleBar, MenuBar (core primitives)
+- `src/components/sections/` - one file per page section
+- `src/components/animations/` - FadeInWhenVisible, StaggerChildren, TiltCard
+- `src/hooks/` - useTypewriter, useBootSequence, usePrefersReducedMotion
+- `src/data/` - projects.ts, experience.ts (edit these to update content)
+- `src/types/` - TypeScript interfaces for Project and ExperienceEntry
 
 ## Rules
 - All interactive components need `"use client"` at the top
 - `layout.tsx` and `page.tsx` stay as Server Components
 - `HeroSection` must be dynamically imported via `DynamicHero` (`ssr: false`) to avoid hydration mismatch with the JS clock and boot sequence
-- No border-radius anywhere — classic Mac had square corners
+- No border-radius anywhere (classic Mac had square corners)
 - Hard drop shadows only: `3px 3px 0px var(--color-ink)`, no blur
 - Hover = full invert (`mac-invert-hover` class), no rounded states
 - All animations must respect `usePrefersReducedMotion`
+- **NEVER use em dashes anywhere.** Not in site copy, not in JSX strings, not in code comments, not in this file, not in commit messages or PR descriptions. Use a colon, a comma, parentheses, or restructure the sentence. For UI separators use `·`, for date ranges use `→`, for list bullets use `•`, for empty table cells use `-`.
 
 ## Design Tokens (key colors)
-- `--color-cream: #f5f0e8` — page background
-- `--color-ink: #1a1611` — borders, text, shadows
-- `--color-ink-muted: #7a7267` — captions, labels
-- `--color-cream-dark: #ede8df` — alternating rows, inactive states
-- `--color-window-bg: #ffffff` — inside windows
+- `--color-cream: #f5f0e8` - page background
+- `--color-ink: #1a1611` - borders, text, shadows
+- `--color-ink-muted: #7a7267` - captions, labels
+- `--color-cream-dark: #ede8df` - alternating rows, inactive states
+- `--color-window-bg: #ffffff` - inside windows
 
 ## Deployment
-Push to `main` → GitHub Actions builds → deploys to `gh-pages` branch → served at `https://luiar.github.io/louis-ar`.
+Push to `main` → GitHub Actions builds → deploys to `gh-pages` branch → served at `https://louisarbey.eu`.
 GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
+The custom domain is set by the `cname: louisarbey.eu` input in `.github/workflows/deploy.yml`, which writes the CNAME file into `out/` on every deploy.
 
 ## Content Updates
 - **Projects**: edit `src/data/projects.ts`
@@ -77,11 +79,11 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Arrow key navigation through menus, Enter to activate, Escape to close, left/right to switch menus
 - **Phase 4: Content & UX**
   - Window content is scrollable independently (flex-1 min-h-0 overflow-auto on content div)
-  - Dock is scrollable (overflow-x-auto) with flex-shrink-0 on buttons — handles many apps gracefully
+  - Dock is scrollable (overflow-x-auto) with flex-shrink-0 on buttons - handles many apps gracefully
   - Window positions and sizes persisted to localStorage (key: `louis-ar-windows`); restored on reload
 - **Phase 5: Pluggable App System**
-  - `src/data/apps.tsx` — central `AppConfig` registry (id, title, icon, content component, defaults)
-  - Desktop, dock, and menus are fully driven by the registry — no hardcoded window lists
+  - `src/data/apps.tsx` - central `AppConfig` registry (id, title, icon, content component, defaults)
+  - Desktop, dock, and menus are fully driven by the registry - no hardcoded window lists
   - `MenuAction` uses template literal type `open-${string}` for extensibility
   - Adding a new app = one entry in `APPS` array + icon + content component, nothing else to touch
 
@@ -90,23 +92,23 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
 ### 📋 Roadmap
 
 #### Phase 6: New Apps
-- [x] **Snake Game** — Classic snake as a draggable window app (`src/components/sections/SnakeGame.tsx`; registered in `src/data/apps.tsx` as `Snake.app`)
+- [x] **Snake Game** - Classic snake as a draggable window app (`src/components/sections/SnakeGame.tsx`; registered in `src/data/apps.tsx` as `Snake.app`)
   - 28×15 checker-grid canvas, direction-aware head eyes, pulsing pixel-art apple, speed scaling every 3 apples, high score tracking, idle/playing/dead states
-- [x] **Terminal** — Fake terminal with fun easter eggs (`src/components/sections/Terminal.tsx`; registered in `src/data/apps.tsx`)
-- [x] **Photo Viewer** — Gallery of project screenshots or photos (`src/components/sections/PhotoViewer.tsx`; registered in `src/data/apps.tsx` as `Photos`)
+- [x] **Terminal** - Fake terminal with fun easter eggs (`src/components/sections/Terminal.tsx`; registered in `src/data/apps.tsx`)
+- [x] **Photo Viewer** - Gallery of project screenshots or photos (`src/components/sections/PhotoViewer.tsx`; registered in `src/data/apps.tsx` as `Photos`)
   - Grid view with 6 pixel-art images (profile photo + 5 SVG artworks for projects/work)
   - Single-image lightbox mode with Prev/Next navigation
   - Classic Mac toolbar, status bar showing file metadata
 
 #### Phase 7: New Apps
-- [x] **MacPaint** — Pixel-art drawing canvas with pencil, eraser, fill-bucket, rect, and line tools; B&W only; canvas saves to localStorage (`src/components/sections/MacPaint.tsx`; registered in `src/data/apps.tsx`)
+- [x] **MacPaint** - Pixel-art drawing canvas with pencil, eraser, fill-bucket, rect, and line tools; B&W only; canvas saves to localStorage (`src/components/sections/MacPaint.tsx`; registered in `src/data/apps.tsx`)
   - 400×268 canvas, offscreen canvas for persistent pixels, Bresenham line for smooth strokes
   - Flood-fill (bucket), rectangle and line with live preview via snapshot
   - Toolbar: tool selector, ink/paper color toggle, 1/2/4px brush sizes, NEW button
   - Status bar showing active tool, brush size, color, and cursor coordinates
 
 #### Phase 8: New Apps
-- [x] **Music Player** — Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`; registered in `src/data/apps.tsx` as `Jukebox`)
+- [x] **Music Player** - Retro jukebox window: curated tracklist (no real audio needed), pixel-art album art, play/pause/skip controls, progress bar, looping playlist (`src/components/sections/MusicPlayer.tsx`; registered in `src/data/apps.tsx` as `Jukebox`)
   - 6 curated tracks with retro Mac-themed metadata
   - 6 unique pixel-art SVG album artworks per track
   - Play/Pause, Prev (restarts track if >3s elapsed), Next controls
@@ -115,21 +117,21 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Auto-advances to next track on completion, loops back to start
 
 #### Phase 9: New Apps
-- [x] **Clock** — Live analog + digital clock in a small window, classic Mac font, ticking second hand drawn with SVG rects (`src/components/sections/Clock.tsx`; registered in `src/data/apps.tsx`)
+- [x] **Clock** - Live analog + digital clock in a small window, classic Mac font, ticking second hand drawn with SVG rects (`src/components/sections/Clock.tsx`; registered in `src/data/apps.tsx`)
   - 200×200 SVG analog face with hour/minute tick marks, three rotated-rect hands
   - Hard-shadow frame, cream/ink color scheme matching classic Mac aesthetic
   - Digital HH:MM:SS display with AM/PM, day-of-week, and full date below
   - Second hand ticks every 1 s via setInterval, all time via useState
 
 #### Phase 10: New Apps
-- [x] **Sticky Notes** — Multi-note text editor with tabs, title editing, word/char count, persisted to localStorage (`src/components/sections/StickyNote.tsx`; registered in `src/data/apps.tsx`)
+- [x] **Sticky Notes** - Multi-note text editor with tabs, title editing, word/char count, persisted to localStorage (`src/components/sections/StickyNote.tsx`; registered in `src/data/apps.tsx`)
   - Up to 6 notes with tab navigation, double-click-to-rename titles
   - Warm yellow (`#faf6e0`) background to feel like a real sticky note
   - New/Delete toolbar, word count + char count status bar
   - Hydration-safe: loads from localStorage on mount, auto-saves on every keystroke
 
 #### Phase 11: Maintenance pass (2026-04-29)
-- [x] **Code quality & accessibility audit** — 6 files fixed:
+- [x] **Code quality & accessibility audit** - 6 files fixed:
   - `MenuBar.tsx`: `ALL_MENU_IDS` added to keyboard nav `useEffect` deps
   - `MacPaint.tsx`: image `onload` guarded with `cancelled` flag to prevent post-unmount draw
   - `MusicPlayer.tsx`: progress bar `div` → `<button role="slider">` with `aria-valuenow/min/max`
@@ -138,19 +140,19 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - `ExperienceSection.tsx`: expandable rows get `role="button"`, `tabIndex`, `aria-expanded`, keyboard handler
 
 #### Phase 11b: Maintenance pass (2026-05-01)
-- [x] **Bug fixes & code hardening** — 3 files fixed:
-  - `SnakeGame.tsx`: global arrow-key handler now skips `e.preventDefault()` when an `INPUT` or `TEXTAREA` is focused — was silently breaking cursor movement in StickyNote and Terminal while the snake window was open
+- [x] **Bug fixes & code hardening** - 3 files fixed:
+  - `SnakeGame.tsx`: global arrow-key handler now skips `e.preventDefault()` when an `INPUT` or `TEXTAREA` is focused - was silently breaking cursor movement in StickyNote and Terminal while the snake window was open
   - `MacPaint.tsx`: replaced `getContext("2d")!` non-null assertion in `blit` callback with an explicit null check
   - `Desktop.tsx`: added explicit `typeof window === "undefined"` guard to `loadLayout`; added explanatory comment to `eslint-disable-next-line` suppression on the keyboard shortcut effect
 
 #### Phase 11c: Maintenance pass (2026-05-03)
-- [x] **Timer leak, null-assertion cleanup, modal a11y** — 3 files fixed:
+- [x] **Timer leak, null-assertion cleanup, modal a11y** - 3 files fixed:
   - `useBootSequence.ts`: `revealTimer` was scoped inside the `bootTimer` callback making `clearTimeout(revealTimer)` unreachable on unmount; moved declaration to outer scope so cleanup clears both timers
   - `MacPaint.tsx`: replaced remaining four `getContext("2d")!` non-null assertions and one `canvasRef.current!` with explicit null guards (`if (!ox) return` / `if (!c) return { x:0, y:0 }`)
-  - `Desktop.tsx`: `AboutModal` now installs a `keydown` listener on mount that calls `onClose()` on Escape — dialog was previously keyboard-inaccessible
+  - `Desktop.tsx`: `AboutModal` now installs a `keydown` listener on mount that calls `onClose()` on Escape - dialog was previously keyboard-inaccessible
 
 #### Phase 12: New Apps (2026-05-02)
-- [x] **Calculator** — Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`; registered in `src/data/apps.tsx`)
+- [x] **Calculator** - Retro 4-function calculator app with classic Mac button grid, expression display, keyboard support (`src/components/sections/Calculator.tsx`; registered in `src/data/apps.tsx`)
   - `useReducer`-based state machine: digit input, operator chaining, equals, C/±/% functions
   - Keyboard support: 0–9, + − * /, Enter/=, Esc/C, Backspace, %
   - Pending-op indicator on display (shows stored value + operator while entering second operand)
@@ -158,67 +160,90 @@ GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
   - Hard-shadow retro button grid; op buttons use ink/cream invert; fn buttons use cream-dark
 
 #### Phase 12 Remaining:
-- [x] **System Preferences** — Fake settings app: desktop background pattern selector (4 options: Crosshatch, Dense, Dots, Solid), click-sound toggle (Web Audio API square-wave beep), Restore Defaults button; settings persisted to localStorage and broadcast via CustomEvent so Desktop responds live (`src/components/sections/SystemPreferences.tsx`; `src/hooks/usePrefs.ts`; registered in `src/data/apps.tsx`)
+- [x] **System Preferences** - Fake settings app: desktop background pattern selector (4 options: Crosshatch, Dense, Dots, Solid), click-sound toggle (Web Audio API square-wave beep), Restore Defaults button; settings persisted to localStorage and broadcast via CustomEvent so Desktop responds live (`src/components/sections/SystemPreferences.tsx`; `src/hooks/usePrefs.ts`; registered in `src/data/apps.tsx`)
   - `usePrefs` hook: reads/writes `louis-ar-prefs` key, fires `prefs-change` custom event for live updates
   - `Desktop.tsx`: imports `usePrefs`; dynamically applies one of four desktop CSS classes; plays Web Audio beep on `window click` when sounds are enabled
   - `MusicPlayer.tsx`: fixed pre-existing `MouseEvent<HTMLDivElement>` → `MouseEvent<HTMLButtonElement>` type error on progress-bar handler
-- [x] **Finder** — File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`; registered in `src/data/apps.tsx`)
+- [x] **Finder** - File-browser style window showing the repo structure as a classic Mac list view with disclosure triangles (`src/components/sections/Finder.tsx`; registered in `src/data/apps.tsx`)
   - Static `REPO_TREE` data with accurate file sizes for all real project files
   - Folder/document/application/image/config file kinds with pixel-art SVG silhouette icons
   - Click to select, double-click or disclosure triangle (▶/▼) to expand/collapse folders
   - Column headers: Name, Kind, Size; alternating row backgrounds
   - Status bar shows selected item info or total visible item count
-  - All icons use `currentColor` only — auto-inverts correctly on selected (dark) rows
+  - All icons use `currentColor` only - auto-inverts correctly on selected (dark) rows
 
 #### Phase 13b: Maintenance pass (2026-05-05)
-- [x] **Bug fixes & accessibility hardening** — 3 files fixed:
-  - `DinoGame.tsx`: global Space/ArrowUp handler now skips `e.preventDefault()` when an `INPUT` or `TEXTAREA` is focused — same Phase 11b fix applied to SnakeGame, DinoGame had the identical oversight and was silently breaking cursor movement/typing in StickyNote and Terminal while the DinoGame window was open
-  - `MusicPlayer.tsx`: tracklist items converted from `<div onClick>` to `<button>` elements with `aria-label` and `aria-pressed` — were not keyboard-navigable or announced to screen readers
-  - `Desktop.tsx`: added optional-chaining null guard (`states[a.id]?.isOpen`) in both `closeWindow` and `toggleMinimize` — prevents a crash if APPS ever contains an entry whose ID is absent from the live state (possible after adding a new app while the user has stale localStorage data)
+- [x] **Bug fixes & accessibility hardening** - 3 files fixed:
+  - `DinoGame.tsx`: global Space/ArrowUp handler now skips `e.preventDefault()` when an `INPUT` or `TEXTAREA` is focused - same Phase 11b fix applied to SnakeGame, DinoGame had the identical oversight and was silently breaking cursor movement/typing in StickyNote and Terminal while the DinoGame window was open
+  - `MusicPlayer.tsx`: tracklist items converted from `<div onClick>` to `<button>` elements with `aria-label` and `aria-pressed` - were not keyboard-navigable or announced to screen readers
+  - `Desktop.tsx`: added optional-chaining null guard (`states[a.id]?.isOpen`) in both `closeWindow` and `toggleMinimize` - prevents a crash if APPS ever contains an entry whose ID is absent from the live state (possible after adding a new app while the user has stale localStorage data)
 
 #### Phase 13c: Maintenance pass (2026-05-07)
-- [x] **Optional-chaining hardening & Finder keyboard accessibility** — 2 files fixed:
-  - `Desktop.tsx`: extended optional-chaining guards to all remaining direct `states[id]` accesses — `toggleMinimize` (`states[id]?.isMinimized ?? false`), `openOrFocus` (early-return null guard), `showWindow` (early-return null guard), Backquote keyboard shortcut filter (`states[a.id]?.isOpen`), and `checkedActions` filter (`states[a.id]?.isOpen`) — makes the code robust against any future APPS/state sync edge cases
-  - `Finder.tsx`: file list rows promoted to `role="option"` with `aria-selected`, `tabIndex={0}`, and `onKeyDown` handler (Enter/Space to select, ArrowRight to expand folder, ArrowLeft to collapse) inside a `role="listbox"` container — rows were previously click-only and invisible to keyboard users and screen readers
+- [x] **Optional-chaining hardening & Finder keyboard accessibility** - 2 files fixed:
+  - `Desktop.tsx`: extended optional-chaining guards to all remaining direct `states[id]` accesses - `toggleMinimize` (`states[id]?.isMinimized ?? false`), `openOrFocus` (early-return null guard), `showWindow` (early-return null guard), Backquote keyboard shortcut filter (`states[a.id]?.isOpen`), and `checkedActions` filter (`states[a.id]?.isOpen`) - makes the code robust against any future APPS/state sync edge cases
+  - `Finder.tsx`: file list rows promoted to `role="option"` with `aria-selected`, `tabIndex={0}`, and `onKeyDown` handler (Enter/Space to select, ArrowRight to expand folder, ArrowLeft to collapse) inside a `role="listbox"` container - rows were previously click-only and invisible to keyboard users and screen readers
 
-#### Phase 13: Mobile Version (Option A — Mobile-native layout)
+#### Phase 13: Mobile Version (Option A - Mobile-native layout)
 
 Goal: render a completely different, touch-friendly UI when the user opens the site on a phone, while sharing all the same content data and design tokens.
 
 **Detection strategy**
-- [x] `src/hooks/useIsMobile.ts` — hook that returns `true` when `window.innerWidth < 768`; `false` on SSR
-- [x] `src/app/page.tsx` — dynamically imports `<MobileApp />` via `ssr: false`; swaps based on hook
+- [x] `src/hooks/useIsMobile.ts` - hook that returns `true` when `window.innerWidth < 768`; `false` on SSR
+- [x] `src/app/page.tsx` - dynamically imports `<MobileApp />` via `ssr: false`; swaps based on hook
 
-**`src/components/mobile/MobileApp.tsx`** — root shell (`"use client"`) ✅
+**`src/components/mobile/MobileApp.tsx`** - root shell (`"use client"`) ✅
 - [x] Full-height scrollable page, `bg-[var(--color-cream)]`
 - [x] Sticky top bar with site title and inline nav links (About / Projects / Experience / Contact)
 - [x] Shows About, Projects, Experience, Contact sections reusing desktop components
 
-**`src/components/mobile/MobileSection.tsx`** — reusable card wrapper ✅
+**`src/components/mobile/MobileSection.tsx`** - reusable card wrapper ✅
 - [x] Mac-window chrome: title bar stripe at top, ink border, hard shadow
 
-**Per-section mobile views** — remaining (desktop components reused for now)
-- [ ] `src/components/mobile/sections/MobileTerminal.tsx` — read-only boot log with fun facts; no interactive input
-- [ ] `src/components/mobile/sections/MobileSnake.tsx` — playable Snake with on-screen D-pad
+**Per-section mobile views** - remaining (desktop components reused for now)
+- [ ] `src/components/mobile/sections/MobileTerminal.tsx` - read-only boot log with fun facts; no interactive input
+- [ ] `src/components/mobile/sections/MobileSnake.tsx` - playable Snake with on-screen D-pad
 
 **Rules that still apply on mobile**
 - No border-radius
 - Hard drop shadows only
 - Space Mono font, cream/ink palette
 
+#### Phase 14: Content refresh (2026-08-24)
+- [x] **Role change from thesis to Redfield** - Hello.txt and ReadMe.txt now lead with the current Data Scientist role at Redfield in Stockholm (AI consulting for large-scale companies and government institutions); the thesis moved to past tense. `AI Consultant` added to the `ROLES` typewriter list.
+- [x] **RISE x Husqvarna thesis experience entry** (`src/data/experience.ts`, id `rise-husqvarna`, Jan 2026 to Jun 2026) sits between Redfield and Adone, with four bullets on the VLM/SLM pipeline and a clickable "Read the thesis" button
+  - `ExperienceType` gained `"thesis"`; `ExperienceEntry` gained an optional `links: ExperienceLink[]` array, rendered as hard-shadow buttons inside the expanded row (`ExperienceSection.tsx`)
+- [x] **Redfield entry** switched to `full-time`, description and bullets widened to cover both large-scale companies and government institutions
+- [x] **Projects**: thesis card reads `✓ Completed 2026` via a new `"completed"` value on `ProjectStatus`; the self-referential "Link" button is gone from the Portfolio Website card (GitHub only)
+- [x] **Contact** copy softened from "Open to new opportunities" to a conversation invite
+- [x] **Metadata**: tab title `Louis Arbey`, description reflects the current role
+- [x] **No em dashes** rule added to Rules above; every existing em dash swept out of `src/` and this file
+
+#### Phase 15: Terminal rewrite (2026-08-24)
+- [x] **Real-terminal behaviour** in `src/components/sections/Terminal.tsx` (was a flat lookup table of canned strings, now a small shell)
+  - **Virtual filesystem**: `HOME` tree with `Documents/`, `Projects/`, `Photos/`, plus `ReadMe.txt`, `hello_world.cpp`, `secret_plans.txt` and two dotfiles (`.zshrc`, `.hidden_joke`) only visible under `ls -a`
+  - **Tab completion**: commands on the first token, paths after it. One candidate completes and appends `/` or a space; several extend to the longest common prefix, then list on the next Tab. Works mid-line.
+  - **History**: Up/Down walk real command history and restore the in-progress draft at the bottom; `history` and `history -c`
+  - **Line editing**: Ctrl+A/E (start/end), Ctrl+U/K (kill to start/end), Ctrl+W (delete word), Ctrl+C (abandon line, echoes `^C`), Ctrl+L (clear), Ctrl+D (delete char, or logout on an empty line)
+  - **Block cursor** drawn from state at the real caret position, over a hidden but real `<input>` (kept as an `<input>` so the SnakeGame/DinoGame global key handlers still leave typing alone). Blink restarts on every edit so the cursor is solid while typing.
+  - **Commands**: `ls -a -l`, `cd`, `pwd`, `cat`, `tree -a`, `echo` (expands `$USER`, `$HOME`, `$PWD`, `$SHELL`), `which`, `man`, `whoami`, `date`, `uname -a`, `uptime`, `neofetch`, `history`, `clear`, `open`, `exit`, plus the `sudo`/`matrix`/`42` easter eggs and the existing `set-default`/`get-default` layout tools
+  - **Quoted arguments**: a small tokenizer handles `cat "some file"`
+  - **Window manager bridge** (`Desktop.tsx`): `__louisArOpenApp`, `__louisArCloseApp`, `__louisArListApps` let `open snake` actually open Snake.app and `exit` actually close the terminal window
+  - Output is selectable now, so `focusTerminal` skips refocusing while a selection is live
+- [x] **React correctness**: `nextId.current++` no longer runs inside a `setLines` updater (it dropped a boot line under React's double-invoked updaters); the boot banner is driven by a `bootLine` state counter with deterministic ids
+
 ---
 
 ## Session End Routine
 At the end of every task, Claude must always:
-1. **List current TODO status** — show each roadmap item and whether it is ✅ done, 🚧 in progress, or 📋 planned
-2. **List Top 3 new ideas** — suggest three concrete, on-brand features that could be added next, with a one-sentence rationale each
+1. **List current TODO status** - show each roadmap item and whether it is ✅ done, 🚧 in progress, or 📋 planned
+2. **List Top 3 new ideas** - suggest three concrete, on-brand features that could be added next, with a one-sentence rationale each
 
 ---
 
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-07)
-1. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) — The two remaining Phase 13 mobile pieces; MobileTerminal brings the easter-egg vibe to phone visitors as a static boot log, and MobileSnake (D-pad controls) turns the phone into a mini game console.
-2. **System-wide Theming in System Preferences** — Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.
-3. **Screensaver** — After ~60 s of idle, fade to a fullscreen animated screensaver (flying pixel-art "toasters", bouncing DVD logo, or scrolling Matrix rain) that dismisses on any input; purely CSS + `requestAnimationFrame`, no new libraries needed.
+## Top 3 Ideas (2026-08-24)
+1. **Terminal pipes and aliases** - The shell now has a filesystem and a tokenizer, so `grep`, `wc`, `head` and a single `|` are a small step from here, and `alias`/`.zshrc` sourcing would make the dotfile in `HOME` mean something.
+2. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces; MobileTerminal can be a read-only boot log with fun facts, and MobileSnake (D-pad controls) turns the phone into a mini game console.
+3. **System-wide theming in System Preferences** - Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.

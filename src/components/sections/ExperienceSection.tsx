@@ -37,7 +37,7 @@ function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
           {entry.role}
         </span>
         <span className="text-[11px] text-[var(--color-ink-muted)] hidden md:block w-32 text-right">
-          {formatDate(entry.startDate)} — {formatDate(entry.endDate)}
+          {formatDate(entry.startDate)} → {formatDate(entry.endDate)}
         </span>
         <span className="text-[11px] text-[var(--color-ink-muted)] w-20 text-right capitalize hidden lg:block">
           {entry.type}
@@ -55,7 +55,7 @@ function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
           >
             <div className="px-8 py-4 bg-[var(--color-cream-dark)] border-b border-[var(--color-ink)] space-y-3">
               <div className="sm:hidden text-[11px] text-[var(--color-ink-muted)]">
-                {entry.role} · {formatDate(entry.startDate)} — {formatDate(entry.endDate)} · {entry.location}
+                {entry.role} · {formatDate(entry.startDate)} → {formatDate(entry.endDate)} · {entry.location}
               </div>
               <div className="hidden sm:block text-[11px] text-[var(--color-ink-muted)]">
                 {entry.location} · {entry.type}
@@ -64,11 +64,29 @@ function ExperienceRow({ entry }: { entry: ExperienceEntry }) {
               <ul className="space-y-1">
                 {entry.bullets.map((bullet, i) => (
                   <li key={i} className="text-[12px] flex gap-2">
-                    <span className="text-[var(--color-ink-muted)] flex-shrink-0">—</span>
+                    <span className="text-[var(--color-ink-muted)] flex-shrink-0">•</span>
                     <span>{bullet}</span>
                   </li>
                 ))}
               </ul>
+              {entry.links && entry.links.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {entry.links.map((link) => (
+                    <a
+                      key={link.url}
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group inline-flex items-center gap-1 border border-[var(--color-ink)] bg-[var(--color-window-bg)] px-3 py-1.5 text-[11px] font-bold leading-none text-[var(--color-ink)] shadow-[2px_2px_0_var(--color-ink)] transition-all duration-100 hover:-translate-x-px hover:-translate-y-px hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)] hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-px active:translate-y-px active:shadow-none"
+                    >
+                      {link.label}
+                      <span className="transition-transform duration-100 group-hover:translate-x-px group-hover:-translate-y-px">
+                        ↗
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

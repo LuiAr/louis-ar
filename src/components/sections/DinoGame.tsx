@@ -154,7 +154,7 @@ export default function DinoGame() {
       Object.assign(g, makeFreshGame());
       g.highScore = hs;
     } else {
-      // Jump — only when on (or very near) the ground
+      // Jump - only when on (or very near) the ground
       if (g.dinoY >= GROUND_Y - DINO_H - 2) {
         g.dinoVY = JUMP_VY;
       }
@@ -282,7 +282,7 @@ export default function DinoGame() {
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
-        // Don't steal Space/ArrowUp from text inputs — they need them for cursor/typing
+        // Don't steal Space/ArrowUp from text inputs - they need them for cursor/typing
         const tag = (e.target as HTMLElement)?.tagName;
         if (tag === "INPUT" || tag === "TEXTAREA") return;
         e.preventDefault();
