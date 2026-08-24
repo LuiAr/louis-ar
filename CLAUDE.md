@@ -31,6 +31,7 @@ Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js
 - Hover = full invert (`mac-invert-hover` class), no rounded states
 - All animations must respect `usePrefersReducedMotion`
 - **NEVER use em dashes anywhere.** Not in site copy, not in JSX strings, not in code comments, not in this file, not in commit messages or PR descriptions. Use a colon, a comma, parentheses, or restructure the sentence. For UI separators use `·`, for date ranges use `→`, for list bullets use `•`, for empty table cells use `-`.
+- **NEVER append generated-by footers or session links.** No `🤖 Generated with Claude Code` line, no `https://claude.ai/code/session_...` URL, no `Claude-Session:` trailer. Not in PR titles or bodies, not in GitHub comments, not in commit messages, not in code. A `Co-Authored-By:` trailer on a commit is fine; the promotional footer is not.
 
 ## Design Tokens (key colors)
 - `--color-cream: #f5f0e8` - page background
