@@ -167,6 +167,55 @@ function GamesFolderWindow({ onOpen }: GamesFolderWindowProps) {
   );
 }
 
+// ── Desktop control strip ────────────────────────────────────────────────────
+
+/** The Games folder is a real window but is not in the APPS registry, so the
+ *  control strip tracks its layout under this id. */
+const GAMES_FOLDER_ID = "games-folder";
+const GAMES_FOLDER_DEFAULT: StoredLayout = { x: 220, y: 90, width: 380, height: 260 };
+
+/** Cascade geometry for Tidy Windows */
+const TIDY_MARGIN = 16;
+const TIDY_STEP = 26;
+/** Keeps a tidied window clear of the control strip sitting above the dock */
+const TIDY_BOTTOM_GAP = 34;
+/** Mirrors MIN_WIDTH / MIN_HEIGHT in DraggableWindow */
+const TIDY_MIN_WIDTH = 220;
+const TIDY_MIN_HEIGHT = 120;
+
+interface StripButtonProps {
+  onClick: () => void;
+  icon: string;
+  label: string;
+  title: string;
+  ariaLabel?: string;
+  disabled?: boolean;
+}
+
+function StripButton({ onClick, icon, label, title, ariaLabel, disabled }: StripButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "mac-button gap-1.5 px-2 py-0.5 text-[10px] leading-none",
+        // Greyed out rather than hidden, matching how the menus disable items.
+        // pointer-events-none also keeps the mac-button hover lift from firing
+        // on a button that does nothing.
+        disabled
+          ? "pointer-events-none text-[var(--color-ink-muted)]"
+          : "mac-invert-hover pointer-events-auto"
+      )}
+      style={{ fontFamily: "var(--font-space-mono)" }}
+      aria-label={ariaLabel ?? label}
+      title={title}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {label}
+    </button>
+  );
+}
+
 // ── About modal ───────────────────────────────────────────────────────────────
 
 function AboutMacSVG() {
@@ -260,7 +309,7 @@ function AboutModal({ onClose }: { onClose: () => void }) {
 export default function Desktop() {
   const desktopRef = useRef<HTMLDivElement>(null);
   const prefs = usePrefs();
-  const [defaultSetup] = useState<StoredDefaultSetup | null>(loadDefaultSetup);
+  const [defaultSetup, setDefaultSetup] = useState<StoredDefaultSetup | null>(loadDefaultSetup);
   const [states, setStates] = useState<Record<string, WindowState>>(() => buildInitialState(defaultSetup));
   const [activeId, setActiveId] = useState<string>(() => getInitialActiveId(defaultSetup));
   const [showAbout, setShowAbout] = useState(false);
@@ -276,6 +325,12 @@ export default function Desktop() {
   // still count: they are open, just parked in the dock.
   const openWindowCount =
     APPS.filter((a) => states[a.id]?.isOpen).length + (gamesOpen ? 1 : 0);
+
+  // Windows actually on screen. Minimized ones are parked in the dock, so there
+  // is nothing to tidy about them.
+  const visibleWindowCount =
+    APPS.filter((a) => states[a.id]?.isOpen && !states[a.id]?.isMinimized).length +
+    (gamesOpen ? 1 : 0);
 
   // Click sounds - plays a retro Mac beep when prefs.sounds is enabled
   useEffect(() => {
@@ -310,6 +365,10 @@ export default function Desktop() {
     ...storedLayout,
     ...(defaultSetup?.layout ?? {}),
   });
+  // Layout pushed down by the control strip. It wins over the saved layout, and
+  // bumping layoutNonce is what tells already-mounted windows to re-read it.
+  const [overrideLayout, setOverrideLayout] = useState<Record<string, StoredLayout>>({});
+  const [layoutNonce, setLayoutNonce] = useState(0);
 
   useEffect(() => {
     function getOpenApps() {
@@ -504,6 +563,95 @@ export default function Desktop() {
     setGamesActive(false);
   }
 
+  function liveLayout(id: string, fallback: StoredLayout): StoredLayout {
+    return layoutRef.current[id] ?? overrideLayout[id] ?? fallback;
+  }
+
+  // Cascade every visible window down and right from the top-left of the
+  // desktop, classic "Clean Up" style. Sizes are kept as the user left them and
+  // only clamped when a window is too big to fit the desktop at all.
+  function tidyWindows() {
+    const desktop = desktopRef.current;
+    if (!desktop) return;
+    const { width: deskWidth, height: deskHeight } = desktop.getBoundingClientRect();
+    const maxWidth = Math.max(TIDY_MIN_WIDTH, deskWidth - TIDY_MARGIN * 2);
+    const maxHeight = Math.max(TIDY_MIN_HEIGHT, deskHeight - TIDY_MARGIN - TIDY_BOTTOM_GAP);
+
+    // Back to front, so the window that ends up deepest in the cascade is the
+    // one already drawn on top.
+    const windows = APPS
+      .filter((a) => states[a.id]?.isOpen && !states[a.id]?.isMinimized)
+      .sort((a, b) => states[a.id].zIndex - states[b.id].zIndex)
+      .map((a) => ({
+        id: a.id,
+        zIndex: states[a.id].zIndex,
+        fallback: {
+          x: a.defaultPosition.x,
+          y: a.defaultPosition.y,
+          width: a.defaultWidth,
+          height: a.defaultHeight,
+        },
+      }));
+    if (gamesOpen) {
+      // Slot the folder in at its own depth rather than always last
+      const at = windows.findIndex((w) => w.zIndex > gamesZ);
+      const entry = { id: GAMES_FOLDER_ID, zIndex: gamesZ, fallback: GAMES_FOLDER_DEFAULT };
+      windows.splice(at === -1 ? windows.length : at, 0, entry);
+    }
+    if (windows.length === 0) return;
+
+    const next: Record<string, StoredLayout> = {};
+    let slot = 0;
+    windows.forEach(({ id, fallback }) => {
+      const current = liveLayout(id, fallback);
+      const width = Math.min(current.width, maxWidth);
+      const height = Math.min(current.height, maxHeight);
+      // Restart at the top-left once the next slot would push a window off the
+      // desktop. Clamping above guarantees slot 0 always fits.
+      const offset = slot * TIDY_STEP;
+      if (offset + width > maxWidth || offset + height > maxHeight) slot = 0;
+      const step = slot * TIDY_STEP;
+      const layout = { x: TIDY_MARGIN + step, y: TIDY_MARGIN + step, width, height };
+      next[id] = layout;
+      layoutRef.current[id] = layout;
+      // The Games folder layout is not persisted, so do not write it out
+      if (id !== GAMES_FOLDER_ID) saveLayout(id, layout);
+      slot += 1;
+    });
+
+    setOverrideLayout((prev) => ({ ...prev, ...next }));
+    setLayoutNonce((n) => n + 1);
+  }
+
+  // Forget every saved layout and go back to what the registry ships: default
+  // positions and sizes, and only the initiallyOpen windows on screen.
+  function resetLayout() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DEFAULT_SETUP_KEY);
+    } catch {
+      // ignore - storage may be unavailable
+    }
+    const defaults: Record<string, StoredLayout> = { [GAMES_FOLDER_ID]: GAMES_FOLDER_DEFAULT };
+    APPS.forEach((a) => {
+      defaults[a.id] = {
+        x: a.defaultPosition.x,
+        y: a.defaultPosition.y,
+        width: a.defaultWidth,
+        height: a.defaultHeight,
+      };
+    });
+    layoutRef.current = {};
+    setOverrideLayout(defaults);
+    setDefaultSetup(null);
+    setStates(buildInitialState(null));
+    setActiveId(getInitialActiveId(null));
+    setGamesOpen(false);
+    setGamesActive(false);
+    topZ.current = APPS.length;
+    setLayoutNonce((n) => n + 1);
+  }
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -576,6 +724,8 @@ export default function Desktop() {
         break;
     }
   }
+
+  const gamesLayout = overrideLayout[GAMES_FOLDER_ID] ?? GAMES_FOLDER_DEFAULT;
 
   const activeTitle = gamesActive
     ? "Games"
@@ -676,13 +826,14 @@ export default function Desktop() {
               title="Games"
               isActive={gamesActive}
               isMinimized={false}
-              defaultPosition={{ x: 220, y: 90 }}
-              defaultWidth={380}
-              defaultHeight={260}
+              defaultPosition={{ x: gamesLayout.x, y: gamesLayout.y }}
+              defaultWidth={gamesLayout.width}
+              defaultHeight={gamesLayout.height}
               zIndex={gamesZ}
               onFocus={focusGames}
               onClose={() => setGamesOpen(false)}
               onMinimize={() => setGamesOpen(false)}
+              layoutNonce={layoutNonce}
               desktopRef={desktopRef}
             >
               <GamesFolderWindow onOpen={openOrFocus} />
@@ -692,7 +843,8 @@ export default function Desktop() {
           {APPS.map((app) => {
             const s = states[app.id];
             if (!s.isOpen || s.isMinimized) return null;
-            const stored = defaultSetup?.layout[app.id] ?? storedLayout[app.id];
+            const stored =
+              overrideLayout[app.id] ?? defaultSetup?.layout[app.id] ?? storedLayout[app.id];
             const Content = app.Content;
             return (
               <DraggableWindow
@@ -719,6 +871,7 @@ export default function Desktop() {
                   layoutRef.current[app.id] = updated;
                   saveLayout(app.id, updated);
                 }}
+                layoutNonce={layoutNonce}
                 desktopRef={desktopRef}
               >
                 <Content />
@@ -727,24 +880,37 @@ export default function Desktop() {
           })}
         </AnimatePresence>
 
-        {/* Close all open windows - centered just above the dock. The wrapper
-            spans the full width so the button stays centered, so it has to be
+        {/* Desktop control strip - centered just above the dock. The wrapper
+            spans the full width so the strip stays centered, so it has to be
             pointer-events-none or it would swallow clicks and window drags
             across that whole strip of desktop. */}
-        {openWindowCount > 0 && (
-          <div className="absolute bottom-2 left-0 right-0 z-[9999] flex justify-center pointer-events-none">
-            <button
-              onClick={closeAllWindows}
-              className="mac-button mac-invert-hover pointer-events-auto gap-1.5 px-2 py-0.5 text-[10px] leading-none"
-              style={{ fontFamily: "var(--font-space-mono)" }}
-              aria-label={`Close all ${openWindowCount} open window${openWindowCount === 1 ? "" : "s"}`}
-              title="Close all open windows"
-            >
-              <span aria-hidden="true">✕</span>
-              Close All ({openWindowCount})
-            </button>
-          </div>
-        )}
+        <div
+          className="absolute bottom-2 left-0 right-0 z-[9999] flex justify-center gap-1.5 pointer-events-none"
+          role="toolbar"
+          aria-label="Desktop controls"
+        >
+          <StripButton
+            onClick={tidyWindows}
+            disabled={visibleWindowCount === 0}
+            icon="▤"
+            label="Tidy Windows"
+            title="Cascade every visible window from the top-left"
+          />
+          <StripButton
+            onClick={resetLayout}
+            icon="↺"
+            label="Reset Layout"
+            title="Forget saved window positions and sizes, back to the default desktop"
+          />
+          <StripButton
+            onClick={closeAllWindows}
+            disabled={openWindowCount === 0}
+            icon="✕"
+            label={openWindowCount > 0 ? `Close All (${openWindowCount})` : "Close All"}
+            title="Close every open window"
+            ariaLabel={`Close all ${openWindowCount} open window${openWindowCount === 1 ? "" : "s"}`}
+          />
+        </div>
       </div>
 
       {/* Dock - portfolio apps only */}

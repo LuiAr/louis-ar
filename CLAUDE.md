@@ -241,11 +241,32 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
   - None of the breaking changes in those majors apply here: checkout v7 only blocks fork-PR checkouts under `pull_request_target`/`workflow_run` (this workflow runs on `push`), setup-node v6 narrows automatic caching to npm (`cache: "npm"` is set explicitly) and v7 drops the dummy `NODE_AUTH_TOKEN` export (unused)
 
 #### Phase 19: Close All centered above the dock (2026-08-24)
-- [x] **Close All moved from the bottom-right corner to the horizontal center** of the desktop, still sitting just above the dock
+- [x] **Close All moved from the bottom-right corner to the horizontal center** of the desktop, still sitting just above the dock (it became the third button of the control strip in Phase 20)
   - The button is now wrapped in a full-width `absolute bottom-2 left-0 right-0 flex justify-center` row rather than being positioned with `right-2`
   - The wrapper carries `pointer-events-none` and the button `pointer-events-auto`, so that full-width strip does not swallow clicks and window drags across the bottom of the desktop
   - Centering with a flex wrapper instead of `left-1/2 -translate-x-1/2` keeps the button's own `transform` free for the `mac-button` hover lift and active press
   - Verified in a headless Chromium run at 1280x800: button center lands exactly on the viewport center, and `elementFromPoint` in the button's row well to its left still returns the desktop, not the wrapper
+
+#### Phase 20: Desktop control strip (2026-08-24)
+- [x] **The lone Close All button became a three-button control strip** above the dock: `▤ Tidy Windows` · `↺ Reset Layout` · `✕ Close All (n)`
+  - `StripButton` local component in `Desktop.tsx` carries the shared `mac-button` + `mac-invert-hover` styling, the icon slot and the disabled treatment
+  - Disabled buttons are greyed with `text-[var(--color-ink-muted)]` and the `disabled` attribute, matching how `MenuBar` greys out unavailable items, plus `pointer-events-none` so the `mac-button` hover lift cannot fire on a button that does nothing
+  - The strip renders unconditionally now (it used to appear only with a window open), because `Reset Layout` is exactly what you want on an empty desktop. `Tidy Windows` disables at `visibleWindowCount === 0` and `Close All` at `openWindowCount === 0`
+  - `role="toolbar"` with an `aria-label` on the wrapper
+- [x] **`Tidy Windows`**: cascades every visible window down and right from the top-left of the desktop, classic "Clean Up" style
+  - Sorted by `zIndex` ascending so the window drawn on top lands deepest in the cascade, which is what makes a cascade read correctly
+  - Sizes are left as the user set them and only clamped when a window cannot fit the desktop at all; the cascade restarts at the top-left once the next slot would push a window off the edge, so any number of windows stays on screen
+  - `TIDY_BOTTOM_GAP` keeps a tidied window clear of the control strip itself
+  - The Games folder is a real window but is not in `APPS`, so it is tracked under a `GAMES_FOLDER_ID` key and slotted into the cascade at its own `gamesZ` depth
+  - Tidied positions are written through to `layoutRef` and `localStorage`, so a tidy survives a reload
+- [x] **`Reset Layout`**: forgets both `louis-ar-windows-v6` and `louis-ar-default-setup-v1`, returns every window to its registry defaults, and puts the desktop back to just the `initiallyOpen` windows
+  - Named `Reset Layout` rather than `Restore Defaults` so it does not collide with the existing `Restore Defaults` button in System Preferences, which resets a different thing (the desktop pattern and click sounds)
+  - Clears `layoutRef`, resets `topZ`, and clears `defaultSetup` state, so a saved terminal `set-default` layout stops applying immediately rather than on the next reload
+- [x] **`DraggableWindow` gained an optional `layoutNonce` prop** (`src/components/ui/DraggableWindow.tsx`)
+  - A mounted window owns its position (Motion values) and its size (local state), so the parent could not move it by changing props alone. Bumping the nonce is the signal to re-read `defaultPosition`/`defaultWidth`/`defaultHeight` and to drop the zoomed state
+  - Guarded with a `hasMounted` ref so mount does not re-apply what is already the initial value, and deliberately keyed on the nonce alone: a change in the `default*` props on its own must never yank a window out from under the user
+  - `Desktop.tsx` holds the pushed layout in `overrideLayout`, which takes precedence over `defaultSetup?.layout` and then `storedLayout`
+- [x] **Verified end to end in headless Chromium at 1280x800**: dragged a window off-position, tidied (windows landed at desktop-relative 16,16 / 42,42 / 68,68 / 94,94, a clean 26px step, front-most deepest), reset (layout matched the load-time geometry exactly and both localStorage keys were gone), closed all (Tidy and Close All greyed, Reset still live), reset again from the empty desktop (all four default windows back). Both new glyphs render in Space Mono rather than falling back to tofu, and `elementFromPoint` beside the strip still returns the desktop
 
 ---
 
@@ -260,6 +281,6 @@ At the end of every task, Claude must always:
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
 ## Top 3 Ideas (2026-08-24)
-1. **Terminal pipes and aliases** - The shell now has a filesystem and a tokenizer, so `grep`, `wc`, `head` and a single `|` are a small step from here, and `alias`/`.zshrc` sourcing would make the dotfile in `HOME` mean something.
-2. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces; MobileTerminal can be a read-only boot log with fun facts, and MobileSnake (D-pad controls) turns the phone into a mini game console.
-3. **System-wide theming in System Preferences** - Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.
+1. **Tidy Windows and Reset Layout in the Window menu** - The control strip has them, and the classic Mac put "Clean Up Window" in a menu; wiring both into `MENUS` plus the `MenuAction` union would make them keyboard reachable and discoverable without hunting for the strip.
+2. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces, and the only place where mobile still borrows desktop components wholesale instead of getting a touch-native view.
+3. **Terminal pipes and aliases** - The shell already has a virtual filesystem and a quote-aware tokenizer, so `grep`, `wc`, `head` and a single `|` are a short hop, and sourcing `.zshrc` for `alias` would finally give that dotfile a purpose.

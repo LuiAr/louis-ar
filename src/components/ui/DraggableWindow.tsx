@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useDragControls, useMotionValue } from "motion/react";
 import { cn } from "@/lib/cn";
 
@@ -17,6 +17,11 @@ export interface DraggableWindowProps {
   onMinimize: () => void;
   onPositionChange?: (pos: { x: number; y: number }) => void;
   onSizeChange?: (size: { width: number; height: number }) => void;
+  /** Bump this to make the window snap back to the incoming defaultPosition /
+   *  defaultWidth / defaultHeight. A mounted window owns its position (motion
+   *  values) and size (local state), so the parent cannot move it by changing
+   *  props alone; this is the signal to re-read them. */
+  layoutNonce?: number;
   desktopRef: React.RefObject<HTMLDivElement | null>;
   children: React.ReactNode;
 }
@@ -37,6 +42,7 @@ export default function DraggableWindow({
   onMinimize,
   onPositionChange,
   onSizeChange,
+  layoutNonce,
   desktopRef,
   children,
 }: DraggableWindowProps) {
@@ -49,6 +55,25 @@ export default function DraggableWindow({
   const [width, setWidth] = useState(defaultWidth);
   const [height, setHeight] = useState(defaultHeight);
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Adopt a layout pushed down from the desktop (Tidy Windows / Reset Layout).
+  // Skipped on mount, where the default* props are already the initial values.
+  const hasMounted = useRef(false);
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    x.set(defaultPosition.x);
+    y.set(defaultPosition.y);
+    setWidth(defaultWidth);
+    setHeight(defaultHeight);
+    setIsZoomed(false);
+    // Only the nonce may trigger this. The default* props are read here on
+    // purpose, but a change in them on its own must never yank a window out
+    // from under the user.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layoutNonce]);
 
   function handleResizePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     e.stopPropagation();
