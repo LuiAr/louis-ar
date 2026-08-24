@@ -1,7 +1,7 @@
 # louis-ar - Portfolio Website
 
 ## Project Overview
-Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js 15 (static export), Tailwind CSS v4, and Motion v12. Deployed to GitHub Pages at `https://luiar.github.io/louis-ar`.
+Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js 15 (static export), Tailwind CSS v4, and Motion v12. Deployed to GitHub Pages and served at `https://louisarbey.eu`.
 
 ## Stack
 - **Next.js 15** - App Router, TypeScript, `output: "export"` for static GitHub Pages
@@ -10,7 +10,7 @@ Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js
 - **clsx + tailwind-merge** - via `src/lib/cn.ts`
 
 ## Key Config
-- `basePath: "/louis-ar"` in `next.config.ts` - required for GitHub Pages sub-path
+- No `basePath` in `next.config.ts`. The site is served from the custom domain root (`louisarbey.eu`), not the `/louis-ar` sub-path, so asset paths are plain absolute paths like `/profile.jpeg`. Do not reintroduce `basePath` unless the custom domain goes away.
 - All design tokens live in `src/app/globals.css` inside `@theme {}`
 - Font: Space Mono via `next/font/google` (variable: `--font-space-mono`)
 
@@ -40,8 +40,9 @@ Personal portfolio website with a 1984 Macintosh-inspired UI. Built with Next.js
 - `--color-window-bg: #ffffff` - inside windows
 
 ## Deployment
-Push to `main` → GitHub Actions builds → deploys to `gh-pages` branch → served at `https://luiar.github.io/louis-ar`.
+Push to `main` → GitHub Actions builds → deploys to `gh-pages` branch → served at `https://louisarbey.eu`.
 GitHub Pages must be set to serve from `gh-pages` branch, `/ (root)`.
+The custom domain is set by the `cname: louisarbey.eu` input in `.github/workflows/deploy.yml`, which writes the CNAME file into `out/` on every deploy.
 
 ## Content Updates
 - **Projects**: edit `src/data/projects.ts`
@@ -207,6 +208,29 @@ Goal: render a completely different, touch-friendly UI when the user opens the s
 - Hard drop shadows only
 - Space Mono font, cream/ink palette
 
+#### Phase 14: Content refresh (2026-08-24)
+- [x] **Role change from thesis to Redfield** - Hello.txt and ReadMe.txt now lead with the current Data Scientist role at Redfield in Stockholm (AI consulting for large-scale companies and government institutions); the thesis moved to past tense. `AI Consultant` added to the `ROLES` typewriter list.
+- [x] **RISE x Husqvarna thesis experience entry** (`src/data/experience.ts`, id `rise-husqvarna`, Jan 2026 to Jun 2026) sits between Redfield and Adone, with four bullets on the VLM/SLM pipeline and a clickable "Read the thesis" button
+  - `ExperienceType` gained `"thesis"`; `ExperienceEntry` gained an optional `links: ExperienceLink[]` array, rendered as hard-shadow buttons inside the expanded row (`ExperienceSection.tsx`)
+- [x] **Redfield entry** switched to `full-time`, description and bullets widened to cover both large-scale companies and government institutions
+- [x] **Projects**: thesis card reads `✓ Completed 2026` via a new `"completed"` value on `ProjectStatus`; the self-referential "Link" button is gone from the Portfolio Website card (GitHub only)
+- [x] **Contact** copy softened from "Open to new opportunities" to a conversation invite
+- [x] **Metadata**: tab title `Louis Arbey`, description reflects the current role
+- [x] **No em dashes** rule added to Rules above; every existing em dash swept out of `src/` and this file
+
+#### Phase 15: Terminal rewrite (2026-08-24)
+- [x] **Real-terminal behaviour** in `src/components/sections/Terminal.tsx` (was a flat lookup table of canned strings, now a small shell)
+  - **Virtual filesystem**: `HOME` tree with `Documents/`, `Projects/`, `Photos/`, plus `ReadMe.txt`, `hello_world.cpp`, `secret_plans.txt` and two dotfiles (`.zshrc`, `.hidden_joke`) only visible under `ls -a`
+  - **Tab completion**: commands on the first token, paths after it. One candidate completes and appends `/` or a space; several extend to the longest common prefix, then list on the next Tab. Works mid-line.
+  - **History**: Up/Down walk real command history and restore the in-progress draft at the bottom; `history` and `history -c`
+  - **Line editing**: Ctrl+A/E (start/end), Ctrl+U/K (kill to start/end), Ctrl+W (delete word), Ctrl+C (abandon line, echoes `^C`), Ctrl+L (clear), Ctrl+D (delete char, or logout on an empty line)
+  - **Block cursor** drawn from state at the real caret position, over a hidden but real `<input>` (kept as an `<input>` so the SnakeGame/DinoGame global key handlers still leave typing alone). Blink restarts on every edit so the cursor is solid while typing.
+  - **Commands**: `ls -a -l`, `cd`, `pwd`, `cat`, `tree -a`, `echo` (expands `$USER`, `$HOME`, `$PWD`, `$SHELL`), `which`, `man`, `whoami`, `date`, `uname -a`, `uptime`, `neofetch`, `history`, `clear`, `open`, `exit`, plus the `sudo`/`matrix`/`42` easter eggs and the existing `set-default`/`get-default` layout tools
+  - **Quoted arguments**: a small tokenizer handles `cat "some file"`
+  - **Window manager bridge** (`Desktop.tsx`): `__louisArOpenApp`, `__louisArCloseApp`, `__louisArListApps` let `open snake` actually open Snake.app and `exit` actually close the terminal window
+  - Output is selectable now, so `focusTerminal` skips refocusing while a selection is live
+- [x] **React correctness**: `nextId.current++` no longer runs inside a `setLines` updater (it dropped a boot line under React's double-invoked updaters); the boot banner is driven by a `bootLine` state counter with deterministic ids
+
 ---
 
 ## Session End Routine
@@ -219,7 +243,7 @@ At the end of every task, Claude must always:
 ## Next Actions
 Add new apps via the pluggable registry in `src/data/apps.tsx`
 
-## Top 3 Ideas (2026-05-07)
-1. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces; MobileTerminal brings the easter-egg vibe to phone visitors as a static boot log, and MobileSnake (D-pad controls) turns the phone into a mini game console.
-2. **System-wide Theming in System Preferences** - Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.
-3. **Screensaver** - After ~60 s of idle, fade to a fullscreen animated screensaver (flying pixel-art "toasters", bouncing DVD logo, or scrolling Matrix rain) that dismisses on any input; purely CSS + `requestAnimationFrame`, no new libraries needed.
+## Top 3 Ideas (2026-08-24)
+1. **Terminal pipes and aliases** - The shell now has a filesystem and a tokenizer, so `grep`, `wc`, `head` and a single `|` are a small step from here, and `alias`/`.zshrc` sourcing would make the dotfile in `HOME` mean something.
+2. **MobileTerminal + MobileSnake** (`src/components/mobile/sections/`) - The two remaining Phase 13 mobile pieces; MobileTerminal can be a read-only boot log with fun facts, and MobileSnake (D-pad controls) turns the phone into a mini game console.
+3. **System-wide theming in System Preferences** - Extend `usePrefs` with a `colorTheme` option (Classic, Dark Mode, High Contrast) that swaps CSS custom-property values at runtime; every component recolors automatically with zero per-component changes.

@@ -30,6 +30,9 @@ declare global {
   interface Window {
     __louisArSetDefaultLayout?: () => string;
     __louisArGetDefaultLayout?: () => string;
+    __louisArOpenApp?: (id: string) => string | null;
+    __louisArCloseApp?: (id: string) => boolean;
+    __louisArListApps?: () => { id: string; title: string }[];
   }
 }
 
@@ -447,6 +450,36 @@ export default function Desktop() {
       focusWindow(id);
     }
   }
+
+  // Terminal bridge: lets the fake shell drive the real window manager, so
+  // `open snake` and `exit` behave like they actually do something.
+  useEffect(() => {
+    window.__louisArListApps = () => APPS.map((a) => ({ id: a.id, title: a.title }));
+
+    window.__louisArOpenApp = (id: string) => {
+      const app = APPS.find((a) => a.id === id.trim().toLowerCase());
+      if (!app) return null;
+      showWindow(app.id);
+      return app.title;
+    };
+
+    window.__louisArCloseApp = (id: string) => {
+      const app = APPS.find((a) => a.id === id.trim().toLowerCase());
+      if (!app || !states[app.id]?.isOpen) return false;
+      closeWindow(app.id);
+      return true;
+    };
+
+    return () => {
+      delete window.__louisArListApps;
+      delete window.__louisArOpenApp;
+      delete window.__louisArCloseApp;
+    };
+    // showWindow and closeWindow are redefined on every render but only close
+    // over `states`, which is in the deps array, so the installed hooks are
+    // never reading a stale window map.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [states]);
 
   function handleQuit() {
     setStates((prev) => {
